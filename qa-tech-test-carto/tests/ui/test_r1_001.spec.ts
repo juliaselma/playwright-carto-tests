@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { LoginPage } from '../../pages/LoginPage';
+import { WorkspacePage } from '../../pages/WorkspacePage';
 import { WorkflowEditorPage } from '../../pages/WorkflowEditorPage';
 import { HomePage } from '../../pages/HomePage';
 
@@ -12,17 +13,20 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
 
   let homePage: HomePage;  
   let loginPage: LoginPage;
+  let workspacePage: WorkspacePage;
   let workflowEditorPage: WorkflowEditorPage;
 
   test.beforeEach(async ({ page }) => {
     homePage = new HomePage(page);
     loginPage = new LoginPage(page);
+    workspacePage = new WorkspacePage(page);
     workflowEditorPage = new WorkflowEditorPage(page);
+
 
     await homePage.navigateToLogin();
     await loginPage.login(USER_EMAIL, USER_PASSWORD);
-    
-    await workflowEditorPage.createNewWorkflow();
+    await workspacePage.navigateAndCreateNewWorkflow();
+
   });
 
   test('Verify map generation from filtered data (Positive Result)', async ({ page }) => {
