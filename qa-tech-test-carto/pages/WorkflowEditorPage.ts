@@ -1,26 +1,170 @@
 import { Page, expect } from '@playwright/test';
 
+interface EvaluateArgs {
+    name: string;
+    selector: string;
+}
+
 export class WorkflowEditorPage {
+  private readonly connectionDataButton = this.page.getByText('Connection data');
+  private readonly demoDataButton = 'p:has-text("demo data")';
+  private readonly demoTablesButton = this.page.getByText('demo_tables');
+  //private readonly scrollContainerSelector = 'div.infinite-scroll-component';
+  private readonly scrollContainerSelector = 'div.css-175htjn'; // Updated selector for the scrollable container
+  private readonly listItemSelector = 'li[data-testid="data-explorer-list-item"]';
+  private readonly firstDatasetItem = this.page.getByText('blue_whales_eastern_pacific_line');
+  private readonly scrollDownButtonSelector = 'button.css-mracrb';
+  private readonly retailStoresSetItem = this.page.getByText('retail_stores');
+  private readonly backButton = this.page.getByRole('button', { name: 'Back' });
+
+  private readonly datasetListSelector = 'li[data-testid="data-explorer-list-item"]'
   private readonly runWorkflowButton = 'button[aria-label="Run workflow"]';
   private readonly nodePanel = '#left-panel-nodes';
   private readonly canvas = '#workflow-editor-canvas';
   private readonly settingsPanel = '#right-panel-settings';
 
+  
+
   constructor(public readonly page: Page) {}
 
-  /** Añade un nodo al canvas arrastrándolo desde el panel izquierdo */
-  async addNodeToCanvas(nodeName: string) {
-    const nodeItem = this.page.locator(this.nodePanel).getByRole('button', { name: nodeName });
-    await nodeItem.scrollIntoViewIfNeeded();
+  async selectDataset(datasetName: string) {
 
-    // Arrastrar el nodo desde el panel al centro del canvas
-    await nodeItem.dragTo(this.page.locator(this.canvas), {
-      sourcePosition: { x: 50, y: 10 },
-      targetPosition: { x: 400, y: 250 },
+    await this.connectionDataButton.waitFor({ state: 'visible', timeout: 30000 });
+    const responsePromise = this.page.waitForResponse(
+        response => response.url().includes('/v3/sql/') && response.status() === 200,
+        { timeout: 30000 }
+    );
+    await this.connectionDataButton.click();
+    await this.page.click(this.demoDataButton);
+    await this.demoTablesButton.click();
+    await responsePromise;
+
+    const scrollContainer = this.page.locator(this.scrollContainerSelector);
+    await scrollContainer.waitFor({ state: 'visible', timeout: 15000 }); 
+
+    // Definición del localizador del dataset que buscamos (para el clic final)
+    const datasetItem = this.page.locator('li[data-testid="data-explorer-list-item"]').filter({
+        hasText: datasetName 
     });
-    // Verificar que el nodo aparece en el canvas
-    await expect(this.page.locator('.node-title', { hasText: nodeName })).toBeVisible();
+/*scorllea pero falla si el elemento no está en el DOM aún
+    // 2. FORZAR SCROLL CON JAVASCRIPT
+    const found = await scrollContainer.evaluate(async (container: HTMLElement, name: string) => {
+        
+        function findItemByText(root: HTMLElement, text: string): HTMLLIElement | null {
+            const listItems = root.querySelectorAll('li[data-testid="data-explorer-list-item"]');
+            
+            // Normalización simple: minúsculas y trim
+            const normalizedTarget = text.toLowerCase().trim(); 
+
+            for (const item of Array.from(listItems)) {
+                // Normalización simple del contenido del elemento
+                const itemContent = item.textContent?.toLowerCase().trim() || '';
+                
+                if (itemContent.includes(normalizedTarget)) {
+                    return item as HTMLLIElement;
+                }
+            }
+            return null;
+        }
+
+        const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+        const MAX_SCROLLS = 30; 
+        const SCROLL_DELAY = 200; // MÁS RÁPIDO para evitar timeout global
+        
+        for (let i = 0; i < MAX_SCROLLS; i++) {
+            
+            const itemToScroll = findItemByText(container, name); 
+            
+            if (itemToScroll) {
+                // Si encontramos el elemento, lo scrolleamos a la vista y salimos.
+                itemToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return true; 
+            }
+
+            // Lógica de Scroll: forzar scroll al final para cargar más datos
+            const oldScrollHeight = container.scrollHeight;
+            container.scrollTop = container.scrollHeight; 
+            container.dispatchEvent(new Event('scroll'));
+            
+            await sleep(SCROLL_DELAY); 
+            
+            // ⭐ ÚLTIMO CHECK: Si el scrollHeight no cambió, hemos llegado al final.
+            if (oldScrollHeight === container.scrollHeight) {
+                 return false; 
+            }
+        }
+        return false;
+        
+    }, datasetName); // Pasa datasetName al contexto del navegador
+
+    // 3. CLIC FINAL
+    if (!found) {
+        throw new Error(`El dataset "${datasetName}" no se encontró después de intentar el scroll (Lazy Loading Fallido).`);
+    }
+
+    // Ahora el localizador de Playwright funcionará porque el elemento está en el DOM.
+    // Usamos waitFor para asegurarnos de que el elemento esté listo después del scrollInToView.
+    await datasetItem.waitFor({ state: 'visible' });
+    await datasetItem.click();*/
+    // 2. FORZAR SCROLL HACIENDO SCROLL DEL ÚLTIMO ELEMENTO VISIBLE
+    // ⭐ COMBINAR LOS ARGUMENTOS EN UN OBJETO ⭐
+    const argsToPass: EvaluateArgs = {
+        name: datasetName,
+        selector: this.listItemSelector
+    };
+
+    // 2. FORZAR SCROLL CON JAVASCRIPT
+    // La función inyectada ahora solo tiene DOS parámetros: container y args
+    const found = await scrollContainer.evaluate(async (container: HTMLElement, args: EvaluateArgs) => {
+        
+        function findItemByText(root: HTMLElement, text: string, selector: string): HTMLLIElement | null {
+            // El selector se pasa a la función interna
+            const normalizedTarget = text.toLowerCase().trim(); 
+            const listItems = root.querySelectorAll(selector);
+            
+            for (const item of Array.from(listItems)) {
+                if (item.textContent?.toLowerCase().trim().includes(normalizedTarget)) {
+                    return item as HTMLLIElement;
+                }
+            }
+            return null;
+        }
+
+        const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+        const MAX_SCROLLS = 50; 
+        const SCROLL_DELAY = 200; 
+        
+        for (let i = 0; i < MAX_SCROLLS; i++) {
+            
+            // Usamos las propiedades del objeto args
+            const itemToFind = findItemByText(container, args.name, args.selector); 
+            
+            if (itemToFind) {
+                itemToFind.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return true; 
+            }
+
+            container.scrollTop = container.scrollHeight; 
+            container.dispatchEvent(new Event('scroll'));
+            
+            await sleep(SCROLL_DELAY); 
+        }
+        return false;
+        
+    }, argsToPass); // ⭐ PASAR EL OBJETO COMBINADO ⭐
+
+    // 3. CLIC FINAL
+    if (!found) {
+        throw new Error(`El dataset "${datasetName}" no se encontró después de intentar el scroll (Lazy Loading Fallido).`);
+    }
+
+    await datasetItem.waitFor({ state: 'visible' });
+    await datasetItem.click();
   }
+
+
+
+
 
   /** Conecta dos nodos usando sus nombres */
   async connectNodes(sourceNodeName: string, targetNodeName: string) {

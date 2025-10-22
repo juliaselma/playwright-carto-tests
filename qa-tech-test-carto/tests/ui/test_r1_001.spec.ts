@@ -4,7 +4,7 @@ import { WorkspacePage } from '../../pages/WorkspacePage';
 import { WorkflowEditorPage } from '../../pages/WorkflowEditorPage';
 import { HomePage } from '../../pages/HomePage';
 
-// Define las credenciales de usuario (usa variables de entorno o un archivo de configuración para producción)
+// pasar a variables de entorno  
 const USER_EMAIL = 'juliaselma@gmail.com';
 
 const USER_PASSWORD = 'Dachibb1901$'; 
@@ -20,21 +20,28 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
     homePage = new HomePage(page);
     loginPage = new LoginPage(page);
     workspacePage = new WorkspacePage(page);
-    workflowEditorPage = new WorkflowEditorPage(page);
 
 
     await homePage.navigateToLogin();
     await loginPage.login(USER_EMAIL, USER_PASSWORD);
-    await workspacePage.navigateAndCreateNewWorkflow();
-
+    //Capture the new tab opened after creating a new workflow
+    const newWorkflowPage = await workspacePage.navigateAndCreateNewWorkflow(); 
+        
+    //reassign the workflowEditorPage to use the new tab
+    workflowEditorPage = new WorkflowEditorPage(newWorkflowPage);
   });
 
   test('Verify map generation from filtered data (Positive Result)', async ({ page }) => {
+    await workflowEditorPage.selectDataset('retail_stores');
+
+    //Implementar el arrrastre y suelta para añadir nodos al canvas
+    //await workflowEditorPage.selectDataset('usa_states_boundaries');
+
     // PASO 1: Create Workflow with 2 sources (A and B).
-    await workflowEditorPage.addNodeToCanvas('Data Explorer'); // Fuente A: retail_stores
+    /*await workflowEditorPage.addNodeToCanvas('Data Explorer'); // Fuente A: retail_stores
     await workflowEditorPage.addNodeToCanvas('Data Explorer'); // Fuente B: usa_states_boundaries
     await workflowEditorPage.addNodeToCanvas('Simple Filter'); // El filtro
-    await workflowEditorPage.addNodeToCanvas('Create Builder Map'); // El componente a probar
+    await workflowEditorPage.addNodeToCanvas('Create Builder Map'); // El componente a probar*/
 
     // NOTA: En un test real, harías clic en cada 'Data Explorer' para seleccionar el dataset.
     // Usaremos nombres genéricos por ahora.

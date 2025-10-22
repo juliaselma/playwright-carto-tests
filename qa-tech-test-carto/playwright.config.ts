@@ -20,6 +20,7 @@ export default defineConfig({
     {
       name: 'ui-chromium',
       testDir: './tests/ui/', // Solo ejecuta tests de UI [cite: 85]
+      timeout: 240 * 1000,
       use: { ...devices['Desktop Chrome'] },
     },
     {

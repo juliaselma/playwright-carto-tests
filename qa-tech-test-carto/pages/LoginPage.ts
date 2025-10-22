@@ -9,6 +9,7 @@ export class LoginPage {
 
   async login(email: string, password: string) {
     console.log(`Iniciando sesión con ${email}`);
+    await this.page.locator(this.emailInput).waitFor({ state: 'visible', timeout: 15000 });
     await this.page.fill(this.emailInput, email);
     await this.page.fill(this.passwordInput, password);
     await this.page.click(this.loginButton);
