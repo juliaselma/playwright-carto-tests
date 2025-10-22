@@ -76,26 +76,6 @@ The Output node generates a table that only contains the rows that DO NOT comply
 
 ***
 
-#### 🧪TC-R1-003
-
-Spatial Integration:
-
-Description:
-
- Verify functionality with a Spatial Join.
-
- Steps:
- 
- 1. Configure a Spatial Join (e.g., Points within a Polygon).
- 
-  2. Connect the output to the Create Builder Map.
-  
-Expected result:
-
-The map is correctly generated, showing only the points that intersect or fall within the filter polygon.
-  
-  ***
-
 ### 🎯 Requirement 2:
 
 Clarity of Data Reference (Metadata)
