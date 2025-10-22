@@ -46,68 +46,7 @@ export class WorkflowEditorPage {
     const datasetItem = this.page.locator('li[data-testid="data-explorer-list-item"]').filter({
         hasText: datasetName 
     });
-/*scorllea pero falla si el elemento no está en el DOM aún
-    // 2. FORZAR SCROLL CON JAVASCRIPT
-    const found = await scrollContainer.evaluate(async (container: HTMLElement, name: string) => {
-        
-        function findItemByText(root: HTMLElement, text: string): HTMLLIElement | null {
-            const listItems = root.querySelectorAll('li[data-testid="data-explorer-list-item"]');
-            
-            // Normalización simple: minúsculas y trim
-            const normalizedTarget = text.toLowerCase().trim(); 
 
-            for (const item of Array.from(listItems)) {
-                // Normalización simple del contenido del elemento
-                const itemContent = item.textContent?.toLowerCase().trim() || '';
-                
-                if (itemContent.includes(normalizedTarget)) {
-                    return item as HTMLLIElement;
-                }
-            }
-            return null;
-        }
-
-        const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-        const MAX_SCROLLS = 30; 
-        const SCROLL_DELAY = 200; // MÁS RÁPIDO para evitar timeout global
-        
-        for (let i = 0; i < MAX_SCROLLS; i++) {
-            
-            const itemToScroll = findItemByText(container, name); 
-            
-            if (itemToScroll) {
-                // Si encontramos el elemento, lo scrolleamos a la vista y salimos.
-                itemToScroll.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                return true; 
-            }
-
-            // Lógica de Scroll: forzar scroll al final para cargar más datos
-            const oldScrollHeight = container.scrollHeight;
-            container.scrollTop = container.scrollHeight; 
-            container.dispatchEvent(new Event('scroll'));
-            
-            await sleep(SCROLL_DELAY); 
-            
-            // ⭐ ÚLTIMO CHECK: Si el scrollHeight no cambió, hemos llegado al final.
-            if (oldScrollHeight === container.scrollHeight) {
-                 return false; 
-            }
-        }
-        return false;
-        
-    }, datasetName); // Pasa datasetName al contexto del navegador
-
-    // 3. CLIC FINAL
-    if (!found) {
-        throw new Error(`El dataset "${datasetName}" no se encontró después de intentar el scroll (Lazy Loading Fallido).`);
-    }
-
-    // Ahora el localizador de Playwright funcionará porque el elemento está en el DOM.
-    // Usamos waitFor para asegurarnos de que el elemento esté listo después del scrollInToView.
-    await datasetItem.waitFor({ state: 'visible' });
-    await datasetItem.click();*/
-    // 2. FORZAR SCROLL HACIENDO SCROLL DEL ÚLTIMO ELEMENTO VISIBLE
-    // ⭐ COMBINAR LOS ARGUMENTOS EN UN OBJETO ⭐
     const argsToPass: EvaluateArgs = {
         name: datasetName,
         selector: this.listItemSelector
