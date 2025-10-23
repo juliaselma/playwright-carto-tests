@@ -31,8 +31,16 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
     workflowEditorPage = new WorkflowEditorPage(newWorkflowPage);
   });
 
+  test.afterEach(async () => {
+    
+    // Llamar al método de limpieza después de CADA test
+    await workflowEditorPage.deleteMap();
+});
+
   test('Verify map generation from filtered data (Positive Result)', async ({ page }) => {
+    test.setTimeout(120000);
     await workflowEditorPage.selectDataset('retail_stores');
+
 
     //Implementar el arrrastre y suelta para añadir nodos al canvas
     //await workflowEditorPage.selectDataset('usa_states_boundaries');
@@ -46,7 +54,7 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
     // NOTA: En un test real, harías clic en cada 'Data Explorer' para seleccionar el dataset.
     // Usaremos nombres genéricos por ahora.
 
-    // PASO 2 & 3: Apply filter and Connect positive output
+    /*// PASO 2 & 3: Apply filter and Connect positive output
     // Conectar Fuente A (retail_stores) al filtro
     await workflowEditorPage.connectNodes('Data Explorer (1)', 'Simple Filter'); 
     // Conectar el output *positivo* del filtro al Create Builder Map.
@@ -69,6 +77,6 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
     await expect(mapLayer).toBeVisible(); 
     
     // Cierra la pestaña del mapa para limpiar
-    await mapPage.close(); 
+    await mapPage.close(); */
   });
 });

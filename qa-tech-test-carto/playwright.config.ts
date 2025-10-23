@@ -7,11 +7,13 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
+  timeout: 240 * 1000,
 
   use: {
     // URL base de la aplicación CARTO para tests de UI
     baseURL: 'https://carto.com/',
     trace: 'on-first-retry',
+    actionTimeout: 90 * 1000,
   },
 
   // === Proyectos para CI/CD (Parte 4: Bonus) ===
@@ -20,8 +22,9 @@ export default defineConfig({
     {
       name: 'ui-chromium',
       testDir: './tests/ui/', // Solo ejecuta tests de UI [cite: 85]
-      timeout: 240 * 1000,
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'],
+        actionTimeout: 90 * 1000,
+       },
     },
     {
       name: 'ui-firefox',

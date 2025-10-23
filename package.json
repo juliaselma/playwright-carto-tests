@@ -1,4 +1,13 @@
-{
+{"name": "qa-tech-test-carto",
+  "version": "1.0.0",
+  "description": "QA Technical Test for CARTO",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write ."
+  },
   "devDependencies": {
     "@playwright/test": "^1.56.1",
     "@types/node": "^24.9.1",
@@ -7,6 +16,7 @@
     "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
     "eslint": "^9.38.0",
+    "prettier": "^3.0.3",
     "typescript": "^5.9.3"
   }
 }
