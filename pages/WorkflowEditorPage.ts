@@ -72,6 +72,13 @@ export class WorkflowEditorPage {
     // ⭐ Selector Específico: div con atributo data-handleid="source" ⭐
     return nodeLocator.locator('div[data-handleid="source"]');
   }
+
+  private getHandleLocator(nodeName: string, handleId: string): Locator {
+    const nodeLocator = this.page.locator('.react-flow__node').filter({ hasText: nodeName });
+    
+    // Busca el handle dentro del nodo usando el data-handleid
+    return nodeLocator.locator(`div[data-handleid="${handleId}"]`);
+}
   private readonly filterValueInput = this.page.getByRole('textbox', {
     name: 'Value',
   });
@@ -330,35 +337,33 @@ export class WorkflowEditorPage {
       x: targetX,
       y: targetY,
     });
-
-    //await this.connectNodes(referenceNodeName, componentName);
   }
 
-  async connectComponentToNode(
-    componentName: string,
-    targetNodeName: string,
-  ): Promise<void> {
-    await this.connectNodes(targetNodeName,componentName);
-  }
+    async connectNodes(
+    sourceNodeName: string, 
+    targetNodeName: string, 
+    sourceHandleId: string, // Valor de data-handleid de origen (ej: 'match', 'out')
+    targetHandleId: string // Valor de data-handleid de destino (ej: 'secondarytable', 'source')
+): Promise<void> {
+    
+    console.log(`Conectando ${sourceNodeName} (${sourceHandleId}) -> ${targetNodeName} (${targetHandleId})`);
 
-  async connectNodes(
-    sourceNodeName: string,
-    targetNodeName: string,
-  ): Promise<void> {
-    console.log(`Conectando ${sourceNodeName} -> ${targetNodeName}`);
+    // 1. Obtener los handles usando el nuevo método unificado
+    const sourceHandle = this.getHandleLocator(sourceNodeName, sourceHandleId);
+    const targetHandle = this.getHandleLocator(targetNodeName, targetHandleId);
 
-    //Obtain the source and target handles
-    const sourceHandle = this.getOutputHandleLocator(sourceNodeName);
-    const targetHandle = this.getInputHandleLocator(targetNodeName);
+    // 2. Asegurar que ambos handles estén visibles
+    //await sourceHandle.waitFor({ state: 'visible', timeout: 10000 });
+    //await targetHandle.waitFor({ state: 'visible', timeout: 10000 });
 
-    await sourceHandle.click({ timeout: 5000 });
-
+    // 3. Clic Explícito y Arrastre
+    await sourceHandle.click({ timeout: 5000 }); 
     await sourceHandle.dragTo(targetHandle, {
-      timeout: 15000,
+        timeout: 15000,
     });
-
     await targetHandle.click({ timeout: 5000 });
-  }
+}
+
 
   async configureSimpleFilter(value: string): Promise<void> {
     await this.filterValueInput.fill(value);

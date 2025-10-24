@@ -39,13 +39,29 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
     await workflowEditorPage.selectDataset('retail_stores');
     await workflowEditorPage.selectDataset('usa_states_boundaries');
     await workflowEditorPage.openComponentsTab();
-    await workflowEditorPage.dragComponent('Simple Filter', 'usa_states_boundaries');
-    await workflowEditorPage.connectComponentToNode('Simple Filter', 'usa_states_boundaries');
+    await workflowEditorPage.dragComponent(
+      'Simple Filter',
+      'usa_states_boundaries',
+    );
+    await workflowEditorPage.connectNodes(
+      'usa_states_boundaries', // sourceNodeName: El nodo origen
+      'Simple Filter', // targetNodeName: El nodo destino
+      'out', // sourceHandleId: data-handleid="out" (Salida por defecto del dataset)
+      'source', // targetHandleId: data-handleid="source" (Entrada principal del filtro)
+    );
     await workflowEditorPage.configureSimpleFilter('California');
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
     await workflowEditorPage.clearComponentSearch();
     await workflowEditorPage.dragComponent('Spatial Join', 'retail_stores');
+    await workflowEditorPage.connectNodes(
+      'Spatial Join',
+      'Simple Filter',
+      'secondarytable', // data-handleid="match"
+      'match', // data-handleid="secondarytable"
+    );
+    await workflowEditorPage.runWorkflow();
+    await workflowEditorPage.assertWorkflowSuccess();
     //await workflowEditorPage.connectComponentToNode('Simple Filter', 'Spatial Join');
 
     //await workflowEditorPage.connectNodes('usa_states_boundaries', 'Simple Filter');
