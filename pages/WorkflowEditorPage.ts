@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { ref } from 'process';
 
 interface EvaluateArgs {
   name: string;
@@ -8,9 +9,10 @@ interface EvaluateArgs {
 //Node dimensions and spacing for layout calculations
 const NODE_HEIGHT = 50;
 const VERTICAL_SPACING = 30;
+const NODE_WIDTH = 180; // Ancho estimado del nodo (ajustar según tu UI)
+const HORIZONTAL_SPACING = 100; // Espacio entre nodos horizontalmente
 
 export class WorkflowEditorPage {
-
   //locators
   private readonly workflowCanvas: Locator;
   private readonly connectionDataButton =
@@ -36,10 +38,55 @@ export class WorkflowEditorPage {
   private readonly deleteConfirmationButton = this.page.getByRole('button', {
     name: 'Yes, delete',
   });
-  private readonly runWorkflowButton = 'button[aria-label="Run workflow"]';
-  private readonly nodePanel = '#left-panel-nodes';
-  private readonly canvas = 'div.react-flow__renderer';
-  private readonly settingsPanel = '#right-panel-settings';
+  private readonly componentsTab = this.page.getByText('Components');
+  private readonly componentSearchBox = this.page.getByRole('textbox', {
+    name: 'Search component',
+  });
+  private getComponentLocator(componentName: string): Locator {
+    return this.page.locator('.css-r7act7').filter({
+      hasText: componentName,
+    });
+  }
+  /**
+   * Obtiene el locator para el handle de SALIDA de un nodo (data-handleid="out").
+   */
+  private getOutputHandleLocator(nodeName: string): Locator {
+    // 1. Obtiene el locator del nodo
+    const nodeLocator = this.page
+      .locator('.react-flow__node')
+      .filter({ hasText: nodeName });
+
+    // 2. Busca el handle de SALIDA dentro del nodo
+    // ⭐ Selector Específico: div con atributo data-handleid="out" ⭐
+    return nodeLocator.locator('div[data-handleid="out"]');
+  }
+
+  /**
+   * Obtiene el locator para el handle de ENTRADA de un nodo (data-handleid="source").
+   */
+  private getInputHandleLocator(nodeName: string): Locator {
+    const nodeLocator = this.page
+      .locator('.react-flow__node')
+      .filter({ hasText: nodeName });
+
+    // 2. Busca el handle de ENTRADA dentro del nodo
+    // ⭐ Selector Específico: div con atributo data-handleid="source" ⭐
+    return nodeLocator.locator('div[data-handleid="source"]');
+  }
+
+  private readonly filterColumnSelect = this.page.getByRole('combobox', {
+    name: 'Column',
+  });
+  private readonly filterOperatorSelect = this.page.getByRole('combobox', {
+    name: 'Operator',
+  });
+  private readonly filterValueInput = this.page.getByRole('textbox', {
+    name: 'Value',
+  });
+
+  private readonly runButton = this.page.getByRole('button', {
+    name: 'run-workflow-button',
+  });
 
   constructor(public readonly page: Page) {
     this.workflowCanvas = page.locator(this.canvasSelector);
@@ -49,8 +96,8 @@ export class WorkflowEditorPage {
     const datasetItem = await this.findDatasetItem(datasetName);
 
     //Determine target position based on existing nodes
-    let targetX: number = 300; 
-    let targetY: number = 300; 
+    let targetX: number = 300;
+    let targetY: number = 300;
 
     const allExistingNodes = this.page.locator('.react-flow__node');
     const nodeCount = await allExistingNodes.count();
@@ -71,9 +118,7 @@ export class WorkflowEditorPage {
           targetY = refPos.y + NODE_HEIGHT + VERTICAL_SPACING;
         }
       } catch (error) {
-        console.warn(
-          `Error obtaining position for node "${datasetName}"`,
-        );
+        console.warn(`Error obtaining position for node "${datasetName}"`);
       }
     }
 
@@ -84,7 +129,7 @@ export class WorkflowEditorPage {
     });
 
     //Post-drag wait to ensure node is fully loaded
-    await this.waitForNodeToLoad(datasetName);
+    await this.waitForNodeToLoad();
   }
 
   async openDemoTablesPanel(): Promise<void> {
@@ -179,15 +224,14 @@ export class WorkflowEditorPage {
     await newNodeLocator.waitFor({ state: 'visible', timeout: 10000 });
   }
 
-  async waitForNodeToLoad(nodeName: string): Promise<void> {
+  async waitForNodeToLoad(): Promise<void> {
     await this.page.waitForTimeout(8000);
   }
 
-  //__________________
   async getNodePosition(nodeName: string): Promise<{ x: number; y: number }> {
     const workflowNode = this.getWorkflowNodeLocator(nodeName);
     const nodeBox = await workflowNode.boundingBox();
-    const canvasBox = await this.workflowCanvas.boundingBox(); 
+    const canvasBox = await this.workflowCanvas.boundingBox();
 
     if (!nodeBox || !canvasBox) {
       return { x: 300, y: 300 }; // Default position if bounding boxes are not found
@@ -209,12 +253,130 @@ export class WorkflowEditorPage {
       await this.deleteConfirmationButton.click({ force: true });
       await this.page.waitForTimeout(2000);
     } catch (error) {
-      console.warn(
-        'Delete map was not completed.',
-        error,
-      );
+      console.warn('Delete map was not completed.', error);
     }
   }
+
+  async openComponentsTab(): Promise<void> {
+    await this.componentsTab.waitFor({ state: 'visible', timeout: 5000 });
+    await this.componentsTab.click();
+  }
+
+  async searchComponent(componentName: string): Promise<void> {
+    await this.componentSearchBox.waitFor({ state: 'visible', timeout: 5000 });
+    await this.componentSearchBox.fill(componentName);
+  }
+
+  async selectComponent(componentName: string): Promise<Locator> {
+    const componentLocator = this.getComponentLocator(componentName);
+    return componentLocator;
+  }
+
+  private async calculateNextHorizontalPosition(
+    referenceNodeName?: string,
+  ): Promise<{ x: number; y: number }> {
+    // Default target position
+    let targetX: number = 200;
+    let targetY: number = 150;
+
+    // 1. Determine the reference node name
+    let refNodeName: string | undefined = referenceNodeName;
+
+    if (!refNodeName) {
+      //if no reference node provided, use the last added node
+      const allExistingNodes = this.page.locator('.react-flow__node');
+      if ((await allExistingNodes.count()) > 0) {
+        const lastNodeText = await allExistingNodes.last().textContent();
+
+        if (lastNodeText) {
+          // assign the last node's name as reference
+          refNodeName = lastNodeText.trim();
+        }
+      }
+    }
+
+    if (refNodeName) {
+      try {
+        //  Get the position of the reference node
+        const refPos = await this.getNodePosition(refNodeName);
+
+        // new X position to the right of the reference node
+        targetX = refPos.x + NODE_WIDTH + HORIZONTAL_SPACING;
+
+        // Y position aligned with the reference node
+        targetY = refPos.y;
+      } catch (error) {
+        console.warn(
+          `Could not calculate horizontal position based on node "${refNodeName}". Falling back to default.`,
+        );
+      }
+    }
+
+    return { x: targetX, y: targetY };
+  }
+
+  async dragAndConnectComponent(
+    componentName: string,
+    referenceNodeName: string,
+  ): Promise<void> {
+    await this.searchComponent(componentName);
+
+    const componentItem = this.getComponentLocator(componentName);
+
+    // Calculate target position based on reference node
+    const { x: targetX, y: targetY } =
+      await this.calculateNextHorizontalPosition(referenceNodeName);
+
+    // Drag and drop the component onto the canvas at calculated position
+    await this.dragDatasetToCanvas(componentItem, componentName, {
+      x: targetX,
+      y: targetY,
+    });
+
+    await this.connectNodes(referenceNodeName, componentName);
+  }
+
+  async connectNodes(
+    sourceNodeName: string,
+    targetNodeName: string,
+  ): Promise<void> {
+    console.log(`Conectando ${sourceNodeName} -> ${targetNodeName}`);
+
+    //Obtain the source and target handles
+    const sourceHandle = this.getOutputHandleLocator(sourceNodeName);
+    const targetHandle = this.getInputHandleLocator(targetNodeName);
+
+    await sourceHandle.click({ timeout: 5000 });
+
+    await sourceHandle.dragTo(targetHandle, {
+      timeout: 15000,
+    });
+
+    await targetHandle.click({ timeout: 5000 });
+  }
+
+  async configureSimpleFilter(value: string): Promise<void> {
+    await this.filterValueInput.fill(value);
+  }
+  async runWorkflow(): Promise<void> {
+    await this.runButton.click();
+    await this.waitForWorkflowToComplete();
+  }
+
+  async waitForWorkflowToComplete(): Promise<void> {
+    const runCompletedButton = this.page
+        .getByRole('button', { name: 'run-workflow-button' })
+        .filter({ hasText: 'Run' });
+
+    console.log('Waiting for workflow to complete...');
+
+    await runCompletedButton.waitFor({ 
+        state: 'visible', 
+        timeout: 60000 
+    });
+
+    console.log('Workflow execution completed.');
+}
 
   /** Conecta dos nodos usando sus nombres */
   /*async connectNodes(sourceNodeName: string, targetNodeName: string) {
