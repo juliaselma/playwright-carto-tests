@@ -9,12 +9,16 @@ export class LoginPage {
 
   async login(email: string, password: string) {
     console.log(`Iniciando sesión con ${email}`);
-    await this.page.locator(this.emailInput).waitFor({ state: 'visible', timeout: 15000 });
+    await this.page
+      .locator(this.emailInput)
+      .waitFor({ state: 'visible', timeout: 15000 });
     await this.page.fill(this.emailInput, email);
     await this.page.fill(this.passwordInput, password);
     await this.page.click(this.loginButton);
-    await this.page.waitForURL('https://clausa.app.carto.com/'); 
-    const loginHeader = this.page.getByRole('heading', { name: 'Welcome to CARTO' }); 
+    await this.page.waitForURL('https://clausa.app.carto.com/');
+    const loginHeader = this.page.getByRole('heading', {
+      name: 'Welcome to CARTO',
+    });
     await expect(loginHeader).toBeVisible();
     console.log('Successfully logged in');
   }

@@ -1,17 +1,16 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import { LoginPage } from '../../pages/LoginPage';
 import { WorkspacePage } from '../../pages/WorkspacePage';
 import { WorkflowEditorPage } from '../../pages/WorkflowEditorPage';
 import { HomePage } from '../../pages/HomePage';
 
-// pasar a variables de entorno  
+// pasar a variables de entorno
 const USER_EMAIL = 'juliaselma@gmail.com';
 
-const USER_PASSWORD = 'Dachibb1901$'; 
+const USER_PASSWORD = 'Dachibb1901$';
 
 test.describe('TC-R1-001: Positive Result - Map Generation', () => {
-
-  let homePage: HomePage;  
+  let homePage: HomePage;
   let loginPage: LoginPage;
   let workspacePage: WorkspacePage;
   let workflowEditorPage: WorkflowEditorPage;
@@ -21,26 +20,25 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
     loginPage = new LoginPage(page);
     workspacePage = new WorkspacePage(page);
 
-
     await homePage.navigateToLogin();
     await loginPage.login(USER_EMAIL, USER_PASSWORD);
     //Capture the new tab opened after creating a new workflow
-    const newWorkflowPage = await workspacePage.navigateAndCreateNewWorkflow(); 
-        
+    const newWorkflowPage = await workspacePage.navigateAndCreateNewWorkflow();
+
     //reassign the workflowEditorPage to use the new tab
     workflowEditorPage = new WorkflowEditorPage(newWorkflowPage);
   });
 
   test.afterEach(async () => {
-    
     // Llamar al método de limpieza después de CADA test
     await workflowEditorPage.deleteMap();
-});
+  });
 
-  test('Verify map generation from filtered data (Positive Result)', async ({ page }) => {
+  test('Verify map generation from filtered data (Positive Result)', async ({
+    page,
+  }) => {
     test.setTimeout(120000);
     await workflowEditorPage.selectDataset('retail_stores');
-
 
     //Implementar el arrrastre y suelta para añadir nodos al canvas
     //await workflowEditorPage.selectDataset('usa_states_boundaries');

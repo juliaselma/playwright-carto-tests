@@ -1,41 +1,47 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 
 interface EvaluateArgs {
-    name: string;
-    selector: string;
+  name: string;
+  selector: string;
 }
 
 export class WorkflowEditorPage {
   private readonly workflowCanvas: Locator;
-  private readonly connectionDataButton = this.page.getByText('Connection data');
+  private readonly connectionDataButton =
+    this.page.getByText('Connection data');
   private readonly demoDataButton = 'p:has-text("demo data")';
   private readonly demoTablesButton = this.page.getByText('demo_tables');
   private readonly scrollContainerSelector = 'div.css-175htjn'; // Updated selector for the scrollable container
-  private readonly listItemSelector = 'li[data-testid="data-explorer-list-item"]';
+  private readonly listItemSelector =
+    'li[data-testid="data-explorer-list-item"]';
   private readonly canvasSelector = 'div[aria-label="workflow-canvas"]';
-  private readonly workflowActionsMenuButton = this.page.getByRole('button', { name: 'workflow-actions-menu' });
+  private readonly workflowActionsMenuButton = this.page.getByRole('button', {
+    name: 'workflow-actions-menu',
+  });
   //private readonly nodeBoxSelector = 'div[data-testid="WorkflowSourceNodeBox"]';
   private getWorkflowNodeLocator(nodeName: string): Locator {
     // Retorna un Locator que filtra por el nombre pasado como argumento
     return this.page.locator('.react-flow__node').filter({
-        hasText: nodeName
+      hasText: nodeName,
     });
-}
+  }
 
   private readonly homeButton = 'a[data-testid="linkLogo"]';
 
-// La opción 'Delete' que aparece en el menú desplegable
-private readonly deleteOptionInMenu = this.page.getByRole('menuitem', { name: 'Delete' });
+  // La opción 'Delete' que aparece en el menú desplegable
+  private readonly deleteOptionInMenu = this.page.getByRole('menuitem', {
+    name: 'Delete',
+  });
 
-// El botón de confirmación en la ventana modal
-private readonly deleteConfirmationButton = this.page.getByRole('button', { name: 'Yes, delete' });
+  // El botón de confirmación en la ventana modal
+  private readonly deleteConfirmationButton = this.page.getByRole('button', {
+    name: 'Yes, delete',
+  });
 
   private readonly runWorkflowButton = 'button[aria-label="Run workflow"]';
   private readonly nodePanel = '#left-panel-nodes';
   private readonly canvas = 'div.react-flow__renderer'; // Selector for the workflow editor canvas
   private readonly settingsPanel = '#right-panel-settings';
-
-  
 
   constructor(public readonly page: Page) {
     this.workflowCanvas = page.locator(this.canvasSelector);
@@ -47,89 +53,101 @@ private readonly deleteConfirmationButton = this.page.getByRole('button', { name
     await this.demoTablesButton.click();
 
     const scrollContainer = this.page.locator(this.scrollContainerSelector);
-    await scrollContainer.waitFor({ state: 'visible', timeout: 15000 }); 
+    await scrollContainer.waitFor({ state: 'visible', timeout: 15000 });
 
-    const datasetItem = this.page.locator('li[data-testid="data-explorer-list-item"]').filter({
-        hasText: datasetName 
-    });
+    const datasetItem = this.page
+      .locator('li[data-testid="data-explorer-list-item"]')
+      .filter({
+        hasText: datasetName,
+      });
 
     const argsToPass: EvaluateArgs = {
-        name: datasetName,
-        selector: this.listItemSelector
+      name: datasetName,
+      selector: this.listItemSelector,
     };
 
-    const found = await scrollContainer.evaluate(async (container: HTMLElement, args: EvaluateArgs) => {
-        
-        function findItemByText(root: HTMLElement, text: string, selector: string): HTMLLIElement | null {
-            const normalizedTarget = text.toLowerCase().trim(); 
-            const listItems = root.querySelectorAll(selector);
-            
-            for (const item of Array.from(listItems)) {
-                if (item.textContent?.toLowerCase().trim().includes(normalizedTarget)) {
-                    return item as HTMLLIElement;
-                }
+    const found = await scrollContainer.evaluate(
+      async (container: HTMLElement, args: EvaluateArgs) => {
+        function findItemByText(
+          root: HTMLElement,
+          text: string,
+          selector: string,
+        ): HTMLLIElement | null {
+          const normalizedTarget = text.toLowerCase().trim();
+          const listItems = root.querySelectorAll(selector);
+
+          for (const item of Array.from(listItems)) {
+            if (
+              item.textContent?.toLowerCase().trim().includes(normalizedTarget)
+            ) {
+              return item as HTMLLIElement;
             }
-            return null;
+          }
+          return null;
         }
 
-        const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-        const MAX_SCROLLS = 50; 
-        const SCROLL_DELAY = 200; 
-        
-        for (let i = 0; i < MAX_SCROLLS; i++) {
-            const itemToFind = findItemByText(container, args.name, args.selector); 
-            
-            if (itemToFind) {
-                itemToFind.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                return true; 
-            }
+        const sleep = (ms: number) =>
+          new Promise(resolve => setTimeout(resolve, ms));
+        const MAX_SCROLLS = 50;
+        const SCROLL_DELAY = 200;
 
-            container.scrollTop = container.scrollHeight; 
-            container.dispatchEvent(new Event('scroll'));
-            
-            await sleep(SCROLL_DELAY); 
+        for (let i = 0; i < MAX_SCROLLS; i++) {
+          const itemToFind = findItemByText(
+            container,
+            args.name,
+            args.selector,
+          );
+
+          if (itemToFind) {
+            itemToFind.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return true;
+          }
+
+          container.scrollTop = container.scrollHeight;
+          container.dispatchEvent(new Event('scroll'));
+
+          await sleep(SCROLL_DELAY);
         }
         return false;
-        
-    }, argsToPass);
+      },
+      argsToPass,
+    );
 
     if (!found) {
-        throw new Error(`El dataset "${datasetName}" no se encontró después de intentar el scroll (Lazy Loading Fallido).`);
+      throw new Error(
+        `El dataset "${datasetName}" no se encontró después de intentar el scroll (Lazy Loading Fallido).`,
+      );
     }
 
     await datasetItem.waitFor({ state: 'visible' });
     await this.dragDatasetToCanvas(datasetItem);
-}
+  }
 
-async dragDatasetToCanvas(datasetItem: Locator): Promise<void> {
+  async dragDatasetToCanvas(datasetItem: Locator): Promise<void> {
     await this.workflowCanvas.waitFor({ state: 'visible' });
 
     await datasetItem.dragTo(this.workflowCanvas, {
-        targetPosition: { x: 100, y: 100 }, 
-        timeout: 15000 
+      targetPosition: { x: 100, y: 100 },
+      timeout: 15000,
     });
     await this.page.waitForTimeout(8000);
-}
+  }
 
-async deleteMap(): Promise<void> {
+  async deleteMap(): Promise<void> {
     try {
-
-        await this.page.click(this.homeButton)
-        const firstMenuButton = this.workflowActionsMenuButton.first();
-        await firstMenuButton.click(); 
-        await this.deleteOptionInMenu.click();
-        await this.deleteConfirmationButton.click({ force: true });
-        await this.page.waitForTimeout(2000);
-      } catch (error) {
-        console.warn('No se pudo completar la limpieza (deleteMap). Esto puede indicar que no había un mapa que borrar, o que el selector de la modal ha cambiado:', error);
-      }
-}
-
-
-
-
-
-
+      await this.page.click(this.homeButton);
+      const firstMenuButton = this.workflowActionsMenuButton.first();
+      await firstMenuButton.click();
+      await this.deleteOptionInMenu.click();
+      await this.deleteConfirmationButton.click({ force: true });
+      await this.page.waitForTimeout(2000);
+    } catch (error) {
+      console.warn(
+        'No se pudo completar la limpieza (deleteMap). Esto puede indicar que no había un mapa que borrar, o que el selector de la modal ha cambiado:',
+        error,
+      );
+    }
+  }
 
   /** Conecta dos nodos usando sus nombres */
   /*async connectNodes(sourceNodeName: string, targetNodeName: string) {
