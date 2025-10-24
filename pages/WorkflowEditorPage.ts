@@ -1,4 +1,4 @@
-import { Page, Locator , expect } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 interface EvaluateArgs {
   name: string;
@@ -80,8 +80,11 @@ export class WorkflowEditorPage {
     name: 'run-workflow-button',
   });
 
-
   private readonly cleanInputButton = this.page.locator('.css-y6fh4i');
+
+  private readonly collapseResultsButton = this.page.getByRole('button', {
+    name: 'collapse-workflow-tabs-button',
+  });
 
   constructor(public readonly page: Page) {
     this.workflowCanvas = page.locator(this.canvasSelector);
@@ -310,7 +313,7 @@ export class WorkflowEditorPage {
     return { x: targetX, y: targetY };
   }
 
-  async dragAndConnectComponent(
+  async dragComponent(
     componentName: string,
     referenceNodeName: string,
   ): Promise<void> {
@@ -328,7 +331,14 @@ export class WorkflowEditorPage {
       y: targetY,
     });
 
-    await this.connectNodes(referenceNodeName, componentName);
+    //await this.connectNodes(referenceNodeName, componentName);
+  }
+
+  async connectComponentToNode(
+    componentName: string,
+    targetNodeName: string,
+  ): Promise<void> {
+    await this.connectNodes(targetNodeName,componentName);
   }
 
   async connectNodes(
@@ -360,54 +370,72 @@ export class WorkflowEditorPage {
 
   async waitForWorkflowToComplete(): Promise<void> {
     const runCompletedButton = this.page
-        .getByRole('button', { name: 'run-workflow-button' })
-        .filter({ hasText: 'Run' });
+      .getByRole('button', { name: 'run-workflow-button' })
+      .filter({ hasText: 'Run' });
 
     console.log('Waiting for workflow to complete...');
 
-    await runCompletedButton.waitFor({ 
-        state: 'visible', 
-        timeout: 60000 
+    await runCompletedButton.waitFor({
+      state: 'visible',
+      timeout: 60000,
     });
 
     console.log('Workflow execution completed.');
-}
+  }
 
-async assertWorkflowSuccess(): Promise<void> {
+  async assertWorkflowSuccess(): Promise<void> {
     const successMessageText = 'Workflow execution completed successfully';
-    
+
     const successMessageLocator = this.page.getByText(successMessageText);
 
     console.log(`Verificando el mensaje de éxito: "${successMessageText}"`);
 
-    await successMessageLocator.waitFor({ 
-        state: 'visible', 
-        timeout: 10000 
+    await successMessageLocator.waitFor({
+      state: 'visible',
+      timeout: 10000,
     });
 
     // 3. (Opcional) Aserción explícita (si estás usando la librería 'expect' de Playwright)
-    await expect(successMessageLocator).toBeVisible(); 
-}
+    await expect(successMessageLocator).toBeVisible();
 
+    await this.collapseResultsPanel();
+  }
 
-async clearComponentSearch(): Promise<void> {
-    
+  async clearComponentSearch(): Promise<void> {
     console.log('Limpiando el campo de búsqueda de componentes...');
 
-    const searchBox = this.page.getByRole('textbox', { name: 'Search component' });
-    const cleanInputButton = this.page.locator('.css-y6fh4i'); 
-    
+    const searchBox = this.page.getByRole('textbox', {
+      name: 'Search component',
+    });
+    //const cleanInputButton = this.page.locator('.css-y6fh4i');
+
     // 1. Esperar y hacer clic en el botón 'X'
-    await cleanInputButton.waitFor({ state: 'visible', timeout: 5000 });
-    await cleanInputButton.click();
-    
+    await this.cleanInputButton.waitFor({ state: 'visible', timeout: 5000 });
+    await this.cleanInputButton.click();
+
     // 2. ⭐ CORRECCIÓN: Esperar que el valor del input sea vacío ⭐
     // Usamos el método expect(locator).toHaveValue('') con un timeout.
     // Esto es mucho más legible y robusto.
     await expect(searchBox).toHaveValue('', { timeout: 5000 });
 
     console.log('El campo de búsqueda ha sido limpiado.');
-}
+  }
+
+  async collapseResultsPanel(): Promise<void> {
+    console.log('Colapsando el panel de resultados para liberar espacio...');
+
+    // 1. Esperar a que el botón esté visible (asumiendo que solo está visible cuando el panel está abierto)
+    /*await this.collapseResultsButton.waitFor({
+      state: 'visible',
+      timeout: 5000,
+    });*/
+
+    // 2. Hacer clic en el botón de colapso
+    await this.collapseResultsButton.click();
+
+    // Opcional: Esperar a que el botón de colapso desaparezca o cambie de rol/dirección (ej: a expand-button)
+    // await this.collapseResultsButton.waitFor({ state: 'hidden' });
+  }
 
   /** Conecta dos nodos usando sus nombres */
   /*
