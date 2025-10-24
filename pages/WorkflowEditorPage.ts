@@ -47,19 +47,22 @@ export class WorkflowEditorPage {
     this.workflowCanvas = page.locator(this.canvasSelector);
   }
 
-  async selectDataset(datasetName: string) {
+  async selectFirstDataset(datasetName: string) {
+    await this.openDemoTablesPanel();
+    const datasetItem = await this.findDatasetItem(datasetName);
+    await this.dragDatasetToCanvas(datasetItem);
+  }
+
+  async openDemoTablesPanel(): Promise<void> {
     await this.connectionDataButton.click();
     await this.page.click(this.demoDataButton);
     await this.demoTablesButton.click();
-
     const scrollContainer = this.page.locator(this.scrollContainerSelector);
     await scrollContainer.waitFor({ state: 'visible', timeout: 15000 });
+  }
 
-    const datasetItem = this.page
-      .locator('li[data-testid="data-explorer-list-item"]')
-      .filter({
-        hasText: datasetName,
-      });
+  async findDatasetItem(datasetName: string): Promise<Locator> {
+    const scrollContainer = this.page.locator(this.scrollContainerSelector);
 
     const argsToPass: EvaluateArgs = {
       name: datasetName,
@@ -75,7 +78,6 @@ export class WorkflowEditorPage {
         ): HTMLLIElement | null {
           const normalizedTarget = text.toLowerCase().trim();
           const listItems = root.querySelectorAll(selector);
-
           for (const item of Array.from(listItems)) {
             if (
               item.textContent?.toLowerCase().trim().includes(normalizedTarget)
@@ -97,15 +99,12 @@ export class WorkflowEditorPage {
             args.name,
             args.selector,
           );
-
           if (itemToFind) {
             itemToFind.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return true;
           }
-
           container.scrollTop = container.scrollHeight;
           container.dispatchEvent(new Event('scroll'));
-
           await sleep(SCROLL_DELAY);
         }
         return false;
@@ -119,8 +118,13 @@ export class WorkflowEditorPage {
       );
     }
 
+    const datasetItem = this.page
+      .locator('li[data-testid="data-explorer-list-item"]')
+      .filter({ hasText: datasetName });
+
     await datasetItem.waitFor({ state: 'visible' });
-    await this.dragDatasetToCanvas(datasetItem);
+
+    return datasetItem;
   }
 
   async dragDatasetToCanvas(datasetItem: Locator): Promise<void> {

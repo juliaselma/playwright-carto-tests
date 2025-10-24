@@ -35,7 +35,7 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
 
   test('Verify map generation from filtered data (Positive Result)', async () => {
     test.setTimeout(120000);
-    await workflowEditorPage.selectDataset('retail_stores');
+    await workflowEditorPage.selectFirstDataset('retail_stores');
 
     //Implementar el arrrastre y suelta para añadir nodos al canvas
     //await workflowEditorPage.selectDataset('usa_states_boundaries');
