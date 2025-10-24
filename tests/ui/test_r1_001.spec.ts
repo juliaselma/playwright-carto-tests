@@ -43,6 +43,8 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
     await workflowEditorPage.configureSimpleFilter('California');
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
+    await workflowEditorPage.clearComponentSearch();
+    await workflowEditorPage.searchComponent('Spatial Join');
     //await workflowEditorPage.connectNodes('usa_states_boundaries', 'Simple Filter');
 
     // PASO 1: Create Workflow with 2 sources (A and B).

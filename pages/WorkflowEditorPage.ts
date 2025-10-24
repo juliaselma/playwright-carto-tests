@@ -72,13 +72,6 @@ export class WorkflowEditorPage {
     // ⭐ Selector Específico: div con atributo data-handleid="source" ⭐
     return nodeLocator.locator('div[data-handleid="source"]');
   }
-
-  private readonly filterColumnSelect = this.page.getByRole('combobox', {
-    name: 'Column',
-  });
-  private readonly filterOperatorSelect = this.page.getByRole('combobox', {
-    name: 'Operator',
-  });
   private readonly filterValueInput = this.page.getByRole('textbox', {
     name: 'Value',
   });
@@ -86,6 +79,9 @@ export class WorkflowEditorPage {
   private readonly runButton = this.page.getByRole('button', {
     name: 'run-workflow-button',
   });
+
+
+  private readonly cleanInputButton = this.page.locator('.css-y6fh4i');
 
   constructor(public readonly page: Page) {
     this.workflowCanvas = page.locator(this.canvasSelector);
@@ -391,6 +387,26 @@ async assertWorkflowSuccess(): Promise<void> {
 
     // 3. (Opcional) Aserción explícita (si estás usando la librería 'expect' de Playwright)
     await expect(successMessageLocator).toBeVisible(); 
+}
+
+
+async clearComponentSearch(): Promise<void> {
+    
+    console.log('Limpiando el campo de búsqueda de componentes...');
+
+    const searchBox = this.page.getByRole('textbox', { name: 'Search component' });
+    const cleanInputButton = this.page.locator('.css-y6fh4i'); 
+    
+    // 1. Esperar y hacer clic en el botón 'X'
+    await cleanInputButton.waitFor({ state: 'visible', timeout: 5000 });
+    await cleanInputButton.click();
+    
+    // 2. ⭐ CORRECCIÓN: Esperar que el valor del input sea vacío ⭐
+    // Usamos el método expect(locator).toHaveValue('') con un timeout.
+    // Esto es mucho más legible y robusto.
+    await expect(searchBox).toHaveValue('', { timeout: 5000 });
+
+    console.log('El campo de búsqueda ha sido limpiado.');
 }
 
   /** Conecta dos nodos usando sus nombres */
