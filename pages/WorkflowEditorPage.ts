@@ -378,30 +378,29 @@ export class WorkflowEditorPage {
     console.log('Workflow execution completed.');
 }
 
+async assertWorkflowSuccess(): Promise<void> {
+    const successMessageText = 'Workflow execution completed successfully';
+    
+    // 1. Localizar el elemento que contiene el texto de éxito
+    // Playwright busca este texto en cualquier elemento visible.
+    const successMessageLocator = this.page.getByText(successMessageText);
+
+    console.log(`Verificando el mensaje de éxito: "${successMessageText}"`);
+
+    // 2. Esperar a que el locator esté visible. 
+    // Esto funciona como una aserción implícita, ya que fallará si el texto no aparece.
+    await successMessageLocator.waitFor({ 
+        state: 'visible', 
+        timeout: 10000 // Le damos 10 segundos para aparecer después de que el botón Run se habilita.
+    });
+
+    // 3. (Opcional) Aserción explícita (si estás usando la librería 'expect' de Playwright)
+    // await expect(successMessageLocator).toBeVisible(); 
+}
+
   /** Conecta dos nodos usando sus nombres */
-  /*async connectNodes(sourceNodeName: string, targetNodeName: string) {
-    // Este es un paso complejo en automatización, a menudo requiere coordinadas de canvas o botones de conexión.
-    // Para simplificar el setup inicial, nos enfocaremos en la conexión por los puertos de entrada/salida.
-    
-    // EJEMPLO SIMPLIFICADO: Hacer clic en el puerto de salida del primer nodo y luego en el puerto de entrada del segundo nodo
-    const sourceNodeOutputPort = this.page.locator(`[data-node-title="${sourceNodeName}"] .port-out`).first();
-    const targetNodeInputPort = this.page.locator(`[data-node-title="${targetNodeName}"] .port-in`).first();
-    
-    await sourceNodeOutputPort.click();
-    await targetNodeInputPort.click();
-    
-    // Verificación de la conexión
-    // await expect(this.page.locator('svg.edge')).toBeVisible(); // Opción más robusta
-  }
-
-  async runWorkflow() {
-    await this.page.click(this.runWorkflowButton);
-    // Esperar a que el estado cambie a "Success"
-    const successIndicator = this.page.locator('.workflow-status-indicator[title="Success"]');
-    await expect(successIndicator).toBeVisible({ timeout: 60000 }); // Espera hasta 60 segundos
-  }
-
-  async openMap() {
+  /*
+async openMap() {
     // Abre el mapa después de la ejecución exitosa
     await this.page.locator('.node-title', { hasText: 'Create Builder Map' }).click();
     await this.page.getByRole('button', { name: 'Open Map' }).click();

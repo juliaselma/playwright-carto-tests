@@ -42,12 +42,11 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
     await workflowEditorPage.dragAndConnectComponent('Simple Filter', 'usa_states_boundaries');
     await workflowEditorPage.configureSimpleFilter('California');
     await workflowEditorPage.runWorkflow();
+    await workflowEditorPage.assertWorkflowSuccess();
     //await workflowEditorPage.connectNodes('usa_states_boundaries', 'Simple Filter');
 
     // PASO 1: Create Workflow with 2 sources (A and B).
-    /*await workflowEditorPage.addNodeToCanvas('Data Explorer'); // Fuente A: retail_stores
-    await workflowEditorPage.addNodeToCanvas('Data Explorer'); // Fuente B: usa_states_boundaries
-    await workflowEditorPage.addNodeToCanvas('Simple Filter'); // El filtro
+    /*
     await workflowEditorPage.addNodeToCanvas('Create Builder Map'); // El componente a probar*/
 
     // NOTA: En un test real, harías clic en cada 'Data Explorer' para seleccionar el dataset.
