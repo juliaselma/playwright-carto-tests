@@ -1,5 +1,4 @@
-import { Page, Locator } from '@playwright/test';
-import { ref } from 'process';
+import { Page, Locator , expect } from '@playwright/test';
 
 interface EvaluateArgs {
   name: string;
@@ -381,21 +380,17 @@ export class WorkflowEditorPage {
 async assertWorkflowSuccess(): Promise<void> {
     const successMessageText = 'Workflow execution completed successfully';
     
-    // 1. Localizar el elemento que contiene el texto de éxito
-    // Playwright busca este texto en cualquier elemento visible.
     const successMessageLocator = this.page.getByText(successMessageText);
 
     console.log(`Verificando el mensaje de éxito: "${successMessageText}"`);
 
-    // 2. Esperar a que el locator esté visible. 
-    // Esto funciona como una aserción implícita, ya que fallará si el texto no aparece.
     await successMessageLocator.waitFor({ 
         state: 'visible', 
-        timeout: 10000 // Le damos 10 segundos para aparecer después de que el botón Run se habilita.
+        timeout: 10000 
     });
 
     // 3. (Opcional) Aserción explícita (si estás usando la librería 'expect' de Playwright)
-    // await expect(successMessageLocator).toBeVisible(); 
+    await expect(successMessageLocator).toBeVisible(); 
 }
 
   /** Conecta dos nodos usando sus nombres */
