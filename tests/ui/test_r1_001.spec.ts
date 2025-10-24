@@ -30,13 +30,10 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
   });
 
   test.afterEach(async () => {
-    // Llamar al método de limpieza después de CADA test
     await workflowEditorPage.deleteMap();
   });
 
-  test('Verify map generation from filtered data (Positive Result)', async ({
-    page,
-  }) => {
+  test('Verify map generation from filtered data (Positive Result)', async () => {
     test.setTimeout(120000);
     await workflowEditorPage.selectDataset('retail_stores');
 
