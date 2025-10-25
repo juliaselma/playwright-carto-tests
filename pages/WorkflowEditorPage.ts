@@ -99,7 +99,6 @@ export class WorkflowEditorPage {
   });
   private readonly dataTab = this.page.getByRole('tab', { name: 'Data' });
 
-
   constructor(public readonly page: Page) {
     this.workflowCanvas = page.locator(this.canvasSelector);
   }
@@ -451,7 +450,6 @@ export class WorkflowEditorPage {
     // await this.collapseResultsButton.waitFor({ state: 'hidden' });
   }
 
-
   async openNodeConfiguration(nodeName: string): Promise<void> {
     // Localiza el nodo basado en el texto visible en el canvas
     const nodeLocator = this.page
@@ -492,26 +490,29 @@ export class WorkflowEditorPage {
     await this.mapNameInput.fill(mapName);
   }
 
-
   async openMapInNewTab(): Promise<Page> {
     console.log('Navigating to the map from the Data tab...');
-    
+
     // 1. Aseguramos que la pestaña 'Data' esté activa
     // (Si ya estás en la pestaña, este clic está bien, si no, puedes necesitar un 'openDataTab()')
-    await this.dataTab.click(); 
-    
+    await this.dataTab.click();
+
     // Locator para el enlace
-    const mapLinkLocator = this.page.getByRole('link', { name: 'https://clausa.app.carto.com/' })
-    
-    console.log('Haciendo clic en el enlace del mapa y esperando la nueva pestaña...');
+    const mapLinkLocator = this.page.getByRole('link', {
+      name: 'https://clausa.app.carto.com/',
+    });
+
+    console.log(
+      'Haciendo clic en el enlace del mapa y esperando la nueva pestaña...',
+    );
 
     // ⭐ CORRECCIÓN DE LA SINCRONIZACIÓN Y SINTAXIS ⭐
     // Usamos Promise.all para esperar simultáneamente el clic Y la apertura de la nueva página.
     const [newMapPage] = await Promise.all([
-        // 1. Promesa: Esperar el evento de nueva página/pestaña (popup)
-        this.page.waitForEvent('popup'), 
-        // 2. Acción: Hacer clic en el locator (que dispara la nueva pestaña)
-        mapLinkLocator.click({ timeout: 10000 }), 
+      // 1. Promesa: Esperar el evento de nueva página/pestaña (popup)
+      this.page.waitForEvent('popup'),
+      // 2. Acción: Hacer clic en el locator (que dispara la nueva pestaña)
+      mapLinkLocator.click({ timeout: 10000 }),
     ]);
 
     // 2. Esperar la URL específica o el estado de carga
@@ -519,20 +520,5 @@ export class WorkflowEditorPage {
     console.log('Successfully navigated to Map page.');
 
     return newMapPage;
-}
-
-  /** Conecta dos nodos usando sus nombres */
-  /*
-async openMap() {
-    // Abre el mapa después de la ejecución exitosa
-    await this.page.locator('.node-title', { hasText: 'Create Builder Map' }).click();
-    await this.page.getByRole('button', { name: 'Open Map' }).click();
-    
-    // Esperar que la nueva pestaña se abra
-    const mapPagePromise = this.page.context().waitForEvent('page');
-    const mapPage = await mapPagePromise;
-    await mapPage.waitForLoadState();
-    
-    return mapPage;
-  }*/
+  }
 }

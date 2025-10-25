@@ -15,7 +15,6 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
   let loginPage: LoginPage;
   let workspacePage: WorkspacePage;
   let workflowEditorPage: WorkflowEditorPage;
-  let mapBuilderPage: MapBuilderPage;
 
   test.beforeEach(async ({ page }) => {
     homePage = new HomePage(page);
@@ -82,26 +81,16 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
 
     const newMapPageInstance = await workflowEditorPage.openMapInNewTab(); 
     const mapPageObject = new MapBuilderPage(newMapPageInstance);
-    await mapPageObject.validateMapLoaded(); // <-- ¡Ahora funciona!
-    //await newMapPage.getByRole('button', { name: 'Add source' }).waitFor({ state: 'visible' });
-
-    //reassign the workflowEditorPage to use the new tab
-    //workflowEditorPage = new mapPage(newMapPage);
+    await mapPageObject.validateMapLoaded(); 
+    await newMapPageInstance.close();
 
     /*
- 
     const mapPage = await workflowEditorPage.openMap();
-    
-    // VERIFICACIÓN (Expected result): El mapa se genera exitosamente
-    await expect(mapPage).toHaveURL(/builder\.carto\.com/);
-    await expect(mapPage.locator('.carto-map')).toBeVisible(); 
     
     // VERIFICACIÓN ADICIONAL: Verificar que el mapa tiene datos (puntos visibles)
     // Esto es muy dependiente del styling, pero asegura que la capa está presente.
     const mapLayer = mapPage.locator('[data-layer-name="Layer 1"]'); // El nombre por defecto o el que definiste
     await expect(mapLayer).toBeVisible(); 
-    
-    // Cierra la pestaña del mapa para limpiar
-    await mapPage.close(); */
+     */
   });
 });
