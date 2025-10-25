@@ -446,6 +446,21 @@ export class WorkflowEditorPage {
     // await this.collapseResultsButton.waitFor({ state: 'hidden' });
   }
 
+  async openNodeConfiguration(nodeName: string): Promise<void> {
+    // Localiza el nodo basado en el texto visible en el canvas
+    const nodeLocator = this.page.locator('.react-flow__node').filter({ hasText: nodeName });
+    
+    // 1. Esperar a que el nodo esté visible
+    await nodeLocator.waitFor({ state: 'visible', timeout: 10000 });
+    
+    // 2. Simular doble clic (dblclick) para abrir el panel lateral de configuración
+    await nodeLocator.dblclick();
+    
+    // Opcional: Esperar a que el panel de configuración se cargue y sea visible
+    // Por ejemplo, esperando el encabezado del panel:
+    // await this.page.getByRole('heading', { name: nodeName }).waitFor();
+}
+
   /** Conecta dos nodos usando sus nombres */
   /*
 async openMap() {

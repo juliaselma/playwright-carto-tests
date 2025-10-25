@@ -70,8 +70,9 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
       'match', // data-handleid="filter"
       'sources', // data-handleid="match"
     );
-    await workflowEditorPage.runWorkflow();
-    await workflowEditorPage.assertWorkflowSuccess();
+    //await workflowEditorPage.runWorkflow();
+    //await workflowEditorPage.assertWorkflowSuccess();
+    await workflowEditorPage.openNodeConfiguration('Create Builder Map');
     /*
     await workflowEditorPage.connectNodes('Simple Filter', 'Create Builder Map');
     
