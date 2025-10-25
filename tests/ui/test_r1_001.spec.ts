@@ -53,12 +53,12 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
     await workflowEditorPage.clearComponentSearch();
-    await workflowEditorPage.dragComponent('Spatial Join', 'retail_stores');
+    await workflowEditorPage.dragComponent('Spatial Filter', 'retail_stores');
     await workflowEditorPage.connectNodes(
-      'Spatial Join',
+      'Spatial Filter',
       'Simple Filter',
-      'secondarytable', // data-handleid="match"
-      'match', // data-handleid="secondarytable"
+      'filter', // data-handleid="filter"
+      'match', // data-handleid="match"
     );
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
