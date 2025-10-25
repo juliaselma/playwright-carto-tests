@@ -94,6 +94,7 @@ export class WorkflowEditorPage {
   private readonly collapseResultsButton = this.page.getByRole('button', {
     name: 'collapse-workflow-tabs-button',
   });
+  private readonly mapNameInput = this.page.getByRole('textbox', { name: 'Map name' });
 
   constructor(public readonly page: Page) {
     this.workflowCanvas = page.locator(this.canvasSelector);
@@ -459,6 +460,17 @@ export class WorkflowEditorPage {
     // Opcional: Esperar a que el panel de configuración se cargue y sea visible
     // Por ejemplo, esperando el encabezado del panel:
     // await this.page.getByRole('heading', { name: nodeName }).waitFor();
+}
+
+async setMapName(mapName: string): Promise<void> {
+    console.log(`Estableciendo el nombre del mapa a: "${mapName}"`);
+    
+    // 1. Esperar a que el campo de entrada esté visible
+    // Playwright implícitamente espera usando getByRole
+    //await this.mapNameInput.waitFor({ state: 'visible', timeout: 5000 });
+    
+    // 2. Escribir el nuevo nombre
+    await this.mapNameInput.fill(mapName);
 }
 
   /** Conecta dos nodos usando sus nombres */
