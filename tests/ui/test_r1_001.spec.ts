@@ -62,23 +62,17 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
     );
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
-    //await workflowEditorPage.connectComponentToNode('Simple Filter', 'Spatial Join');
-
-    //await workflowEditorPage.connectNodes('usa_states_boundaries', 'Simple Filter');
-
-    // PASO 1: Create Workflow with 2 sources (A and B).
+    await workflowEditorPage.clearComponentSearch();
+    await workflowEditorPage.dragComponent('Create Builder Map', 'Spatial Filter');
+    await workflowEditorPage.connectNodes(
+      'Spatial Filter',
+      'Create Builder Map',
+      'match', // data-handleid="filter"
+      'sources', // data-handleid="match"
+    );
+    await workflowEditorPage.runWorkflow();
+    await workflowEditorPage.assertWorkflowSuccess();
     /*
-    await workflowEditorPage.addNodeToCanvas('Create Builder Map'); // El componente a probar*/
-
-    // NOTA: En un test real, harías clic en cada 'Data Explorer' para seleccionar el dataset.
-    // Usaremos nombres genéricos por ahora.
-
-    /*// PASO 2 & 3: Apply filter and Connect positive output
-    // Conectar Fuente A (retail_stores) al filtro
-    await workflowEditorPage.connectNodes('Data Explorer (1)', 'Simple Filter'); 
-    // Conectar el output *positivo* del filtro al Create Builder Map.
-    // Nota: Necesitas la lógica exacta para el output positivo. En Workflows,
-    // el filtro a menudo genera dos outputs. Aquí asumimos el primer puerto es el positivo.
     await workflowEditorPage.connectNodes('Simple Filter', 'Create Builder Map');
     
     // PASO 4: Execute and open the map.
