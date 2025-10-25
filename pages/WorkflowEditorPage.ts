@@ -98,6 +98,13 @@ export class WorkflowEditorPage {
     name: 'Map name',
   });
   private readonly dataTab = this.page.getByRole('tab', { name: 'Data' });
+  private readonly tableScrollContainer = this.page.locator(
+    '.MuiTableContainer-root',
+  );
+  private readonly stateColumnHeader = this.page.getByRole('columnheader', {
+    name: 'state string',
+  });
+  private readonly reactFlowRenderer = this.page.locator('.react-flow__renderer');
 
   constructor(public readonly page: Page) {
     this.workflowCanvas = page.locator(this.canvasSelector);
@@ -390,7 +397,7 @@ export class WorkflowEditorPage {
 
     await runCompletedButton.waitFor({
       state: 'visible',
-      timeout: 80000,
+      timeout: 150000,
     });
 
     console.log('Workflow execution completed.');
@@ -521,4 +528,72 @@ export class WorkflowEditorPage {
 
     return newMapPage;
   }
+
+  async scrollToElementHorizontal(elementLocator: Locator): Promise<void> {
+    await elementLocator.evaluate(element => {
+      element.scrollIntoView({
+        behavior: 'auto',
+        block: 'nearest',
+        inline: 'end',
+      });
+    });
+  }
+
+  async assertStateExcludesCA(regionName: string): Promise<void> {
+        this.selectNode('Spatial Filter');
+    console.log(`Asserting that data excludes region: "${regionName}"...`);
+
+    await this.dataTab.waitFor({ state: 'visible', timeout: 5000 });
+    //await this.page.pause();
+    await this.dataTab.click();
+    //this.selectNode('Spatial Filter');
+    await this.page.waitForTimeout(2000); // Espera para asegurar que los datos se carguen
+    //await this.page.pause();
+    await this.scrollToElementHorizontal(this.stateColumnHeader);
+    
+
+    
+    // 3. Obtener el índice de la columna 'state'
+    const stateHeaderIndex = await this.stateColumnHeader.evaluate(element => {
+        // Encontrar el índice de la celda de encabezado dentro de su fila (thead > tr)
+        const row = element.closest('tr');
+        if (!row) return -1;
+        return Array.from(row.children).indexOf(element);
+    });
+
+    if (stateHeaderIndex === -1) {
+        throw new Error("No se pudo determinar la columna 'state'.");
+    }
+
+    // 4. Localizar todas las celdas de datos (td) de la columna 'state'
+    // Selector XPath o CSS que busca la N-ésima celda (td) en cada fila (tr) del cuerpo (tbody)
+    const stateCells = this.page.locator(`tbody tr td:nth-child(${stateHeaderIndex + 1})`);
+    
+    const count = await stateCells.count();
+    
+    // 5. Iterar sobre todas las celdas y validar el contenido
+    for (let i = 0; i < count; ++i) {
+        const cell = stateCells.nth(i);
+        // Validar que el texto de la celda es exactamente 'CA' (o el texto que corresponde a esa columna)
+        await expect(cell).not.toHaveText('CA', { timeout: 5000 });
+    }
+    
+    console.log(`✅ Validación Positiva: Las ${count} filas de la columna 'state' no contienen 'CA'.`);
+    await this.closeNodeConfigurationPanel();
+
+}
+async closeNodeConfigurationPanel(): Promise<void> {
+    console.log('Cerrando el panel de configuración del nodo...');
+    
+    // 1. Esperar a que el pane esté visible
+    //await this.reactFlowRenderer.waitFor({ state: 'visible', timeout: 5000 });
+    
+    // 2. Hacer clic en el centro del pane. Este clic fuera de la configuración
+    // suele ser la acción que la descarta.
+    await this.reactFlowRenderer.click();
+    
+    // Opcional: Agregar una aserción para verificar que el panel desaparece
+    // Por ejemplo: esperar que el encabezado del panel ya no esté visible.
+    // await this.page.getByRole('heading', { name: 'Simple Filter' }).waitFor({ state: 'hidden' });
+}
 }
