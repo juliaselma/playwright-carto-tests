@@ -3,6 +3,7 @@ import { LoginPage } from '../../pages/LoginPage';
 import { WorkspacePage } from '../../pages/WorkspacePage';
 import { WorkflowEditorPage } from '../../pages/WorkflowEditorPage';
 import { HomePage } from '../../pages/HomePage';
+import { MapBuilderPage } from '../../pages/MapBuilderPage';
 
 // pasar a variables de entorno
 const USER_EMAIL = 'juliaselma@gmail.com';
@@ -14,6 +15,7 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
   let loginPage: LoginPage;
   let workspacePage: WorkspacePage;
   let workflowEditorPage: WorkflowEditorPage;
+  let mapBuilderPage: MapBuilderPage;
 
   test.beforeEach(async ({ page }) => {
     homePage = new HomePage(page);
@@ -52,6 +54,7 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
     await workflowEditorPage.configureSimpleFilter('California');
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
+    await workflowEditorPage.collapseResultsPanel();
     await workflowEditorPage.clearComponentSearch();
     await workflowEditorPage.dragComponent('Spatial Filter', 'retail_stores');
     await workflowEditorPage.connectNodes(
@@ -62,6 +65,7 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
     );
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
+    await workflowEditorPage.collapseResultsPanel();
     await workflowEditorPage.clearComponentSearch();
     await workflowEditorPage.dragComponent('Create Builder Map', 'Spatial Filter');
     await workflowEditorPage.connectNodes(
@@ -74,13 +78,18 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
     await workflowEditorPage.setMapName('Retail Stores by Filtered State');
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
+    await workflowEditorPage.selectNode('Create Builder Map');
+
+    const newMapPageInstance = await workflowEditorPage.openMapInNewTab(); 
+    const mapPageObject = new MapBuilderPage(newMapPageInstance);
+    await mapPageObject.validateMapLoaded(); // <-- ¡Ahora funciona!
+    //await newMapPage.getByRole('button', { name: 'Add source' }).waitFor({ state: 'visible' });
+
+    //reassign the workflowEditorPage to use the new tab
+    //workflowEditorPage = new mapPage(newMapPage);
 
     /*
-    await workflowEditorPage.connectNodes('Simple Filter', 'Create Builder Map');
-    
-    // PASO 4: Execute and open the map.
-    await workflowEditorPage.runWorkflow();
-
+ 
     const mapPage = await workflowEditorPage.openMap();
     
     // VERIFICACIÓN (Expected result): El mapa se genera exitosamente

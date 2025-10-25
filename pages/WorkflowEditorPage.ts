@@ -94,7 +94,11 @@ export class WorkflowEditorPage {
   private readonly collapseResultsButton = this.page.getByRole('button', {
     name: 'collapse-workflow-tabs-button',
   });
-  private readonly mapNameInput = this.page.getByRole('textbox', { name: 'Map name' });
+  private readonly mapNameInput = this.page.getByRole('textbox', {
+    name: 'Map name',
+  });
+  private readonly dataTab = this.page.getByRole('tab', { name: 'Data' });
+
 
   constructor(public readonly page: Page) {
     this.workflowCanvas = page.locator(this.canvasSelector);
@@ -408,7 +412,7 @@ export class WorkflowEditorPage {
     // 3. (Opcional) Aserción explícita (si estás usando la librería 'expect' de Playwright)
     await expect(successMessageLocator).toBeVisible();
 
-    await this.collapseResultsPanel();
+    //await this.collapseResultsPanel();
   }
 
   async clearComponentSearch(): Promise<void> {
@@ -447,30 +451,74 @@ export class WorkflowEditorPage {
     // await this.collapseResultsButton.waitFor({ state: 'hidden' });
   }
 
+
   async openNodeConfiguration(nodeName: string): Promise<void> {
     // Localiza el nodo basado en el texto visible en el canvas
-    const nodeLocator = this.page.locator('.react-flow__node').filter({ hasText: nodeName });
-    
+    const nodeLocator = this.page
+      .locator('.react-flow__node')
+      .filter({ hasText: nodeName });
+
     // 1. Esperar a que el nodo esté visible
     await nodeLocator.waitFor({ state: 'visible', timeout: 10000 });
-    
+
     // 2. Simular doble clic (dblclick) para abrir el panel lateral de configuración
     await nodeLocator.dblclick();
-    
+
     // Opcional: Esperar a que el panel de configuración se cargue y sea visible
     // Por ejemplo, esperando el encabezado del panel:
     // await this.page.getByRole('heading', { name: nodeName }).waitFor();
-}
+  }
+  async selectNode(nodeName: string): Promise<void> {
+    // Localiza el nodo basado en el texto visible en el canvas
+    const nodeLocator = this.page
+      .locator('.react-flow__node')
+      .filter({ hasText: nodeName });
 
-async setMapName(mapName: string): Promise<void> {
+    // 1. Esperar a que el nodo esté visible
+    await nodeLocator.waitFor({ state: 'visible', timeout: 10000 });
+
+    // 2. Simular doble clic (dblclick) para abrir el panel lateral de configuración
+    await nodeLocator.click();
+  }
+
+  async setMapName(mapName: string): Promise<void> {
     console.log(`Estableciendo el nombre del mapa a: "${mapName}"`);
-    
+
     // 1. Esperar a que el campo de entrada esté visible
     // Playwright implícitamente espera usando getByRole
     //await this.mapNameInput.waitFor({ state: 'visible', timeout: 5000 });
-    
+
     // 2. Escribir el nuevo nombre
     await this.mapNameInput.fill(mapName);
+  }
+
+
+  async openMapInNewTab(): Promise<Page> {
+    console.log('Navigating to the map from the Data tab...');
+    
+    // 1. Aseguramos que la pestaña 'Data' esté activa
+    // (Si ya estás en la pestaña, este clic está bien, si no, puedes necesitar un 'openDataTab()')
+    await this.dataTab.click(); 
+    
+    // Locator para el enlace
+    const mapLinkLocator = this.page.getByRole('link', { name: 'https://clausa.app.carto.com/' })
+    
+    console.log('Haciendo clic en el enlace del mapa y esperando la nueva pestaña...');
+
+    // ⭐ CORRECCIÓN DE LA SINCRONIZACIÓN Y SINTAXIS ⭐
+    // Usamos Promise.all para esperar simultáneamente el clic Y la apertura de la nueva página.
+    const [newMapPage] = await Promise.all([
+        // 1. Promesa: Esperar el evento de nueva página/pestaña (popup)
+        this.page.waitForEvent('popup'), 
+        // 2. Acción: Hacer clic en el locator (que dispara la nueva pestaña)
+        mapLinkLocator.click({ timeout: 10000 }), 
+    ]);
+
+    // 2. Esperar la URL específica o el estado de carga
+    await newMapPage.waitForURL('**/builder/*');
+    console.log('Successfully navigated to Map page.');
+
+    return newMapPage;
 }
 
   /** Conecta dos nodos usando sus nombres */
