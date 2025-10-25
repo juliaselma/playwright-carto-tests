@@ -66,7 +66,10 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
     await workflowEditorPage.assertWorkflowSuccess();
     await workflowEditorPage.collapseResultsPanel();
     await workflowEditorPage.clearComponentSearch();
-    await workflowEditorPage.dragComponent('Create Builder Map', 'Spatial Filter');
+    await workflowEditorPage.dragComponent(
+      'Create Builder Map',
+      'Spatial Filter',
+    );
     await workflowEditorPage.connectNodes(
       'Spatial Filter',
       'Create Builder Map',
@@ -79,9 +82,9 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
     await workflowEditorPage.assertWorkflowSuccess();
     await workflowEditorPage.selectNode('Create Builder Map');
 
-    const newMapPageInstance = await workflowEditorPage.openMapInNewTab(); 
+    const newMapPageInstance = await workflowEditorPage.openMapInNewTab();
     const mapPageObject = new MapBuilderPage(newMapPageInstance);
-    await mapPageObject.validateMapLoaded(); 
+    await mapPageObject.validateMapLoaded();
     await newMapPageInstance.close();
 
     /*
