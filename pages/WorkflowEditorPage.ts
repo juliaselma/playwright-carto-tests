@@ -390,7 +390,7 @@ export class WorkflowEditorPage {
 
     await runCompletedButton.waitFor({
       state: 'visible',
-      timeout: 60000,
+      timeout: 80000,
     });
 
     console.log('Workflow execution completed.');

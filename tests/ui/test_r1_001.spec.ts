@@ -1,40 +1,9 @@
-import { test } from '@playwright/test';
-import { LoginPage } from '../../pages/LoginPage';
-import { WorkspacePage } from '../../pages/WorkspacePage';
-import { WorkflowEditorPage } from '../../pages/WorkflowEditorPage';
-import { HomePage } from '../../pages/HomePage';
 import { MapBuilderPage } from '../../pages/MapBuilderPage';
-
-// pasar a variables de entorno
-const USER_EMAIL = 'juliaselma@gmail.com';
-
-const USER_PASSWORD = 'Dachibb1901$';
+import { test } from '../baseTest';
 
 test.describe('TC-R1-001: Positive Result - Map Generation', () => {
-  let homePage: HomePage;
-  let loginPage: LoginPage;
-  let workspacePage: WorkspacePage;
-  let workflowEditorPage: WorkflowEditorPage;
 
-  test.beforeEach(async ({ page }) => {
-    homePage = new HomePage(page);
-    loginPage = new LoginPage(page);
-    workspacePage = new WorkspacePage(page);
-
-    await homePage.navigateToLogin();
-    await loginPage.login(USER_EMAIL, USER_PASSWORD);
-    //Capture the new tab opened after creating a new workflow
-    const newWorkflowPage = await workspacePage.navigateAndCreateNewWorkflow();
-
-    //reassign the workflowEditorPage to use the new tab
-    workflowEditorPage = new WorkflowEditorPage(newWorkflowPage);
-  });
-
-  test.afterEach(async () => {
-    await workflowEditorPage.deleteMap();
-  });
-
-  test('Verify map generation from filtered data (Positive Result)', async () => {
+  test('Verify map generation from filtered data (Positive Result)', async ({ workflowEditorPage }) => {
     test.setTimeout(120000);
     await workflowEditorPage.openDemoTablesPanel();
     await workflowEditorPage.selectDataset('retail_stores');
