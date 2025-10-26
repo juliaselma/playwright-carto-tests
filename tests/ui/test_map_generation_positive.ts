@@ -2,8 +2,8 @@ import { MapBuilderPage } from '../../pages/MapBuilderPage';
 import { test } from '../baseTest';
 import { testData } from '../data/testData';
 
-test.describe('TC-R1-002: Negative Result - Map Generation', () => {
-  test('Verify map generation from data that DOES NOT meet the criteria', async ({
+test.describe('TC-R1/R2-001: Positive Result - Full Validation (Data, Metrics, Map)', () => {
+  test('Verify map generation from filtered data (Positive Result)', async ({
     workflowEditorPage,
   }) => {
     test.setTimeout(160000);
@@ -34,12 +34,18 @@ test.describe('TC-R1-002: Negative Result - Map Generation', () => {
       testData.NODE_SPATIAL_FILTER,
       testData.NODE_SIMPLE_FILTER,
       'filter',
-      'unmatch',
+      'match',
+    );
+    await workflowEditorPage.connectNodes(
+      testData.NODE_STORES,
+      testData.NODE_SPATIAL_FILTER,
+      'out',
+      'source',
     );
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
     await workflowEditorPage.selectNode(testData.NODE_SPATIAL_FILTER);
-    await workflowEditorPage.assertStateColumnContent('CA', 'excludes');
+    await workflowEditorPage.assertStateColumnContent('CA', 'includes');
     await workflowEditorPage.collapseResultsPanel();
     await workflowEditorPage.clearComponentSearch();
     await workflowEditorPage.dragComponent(
@@ -53,7 +59,7 @@ test.describe('TC-R1-002: Negative Result - Map Generation', () => {
       'sources',
     );
     await workflowEditorPage.openNodeConfiguration(testData.NODE_MAP);
-    await workflowEditorPage.setMapName(testData.MAP_NAME_NEGATIVE);
+    await workflowEditorPage.setMapName(testData.MAP_NAME_POSITIVE);
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
     await workflowEditorPage.selectNode(testData.NODE_MAP);
