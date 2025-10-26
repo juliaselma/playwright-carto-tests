@@ -24,7 +24,9 @@ export const test = baseTest.extend<MyFixtures>({
     const email = process.env.USER_EMAIL;
     const password = process.env.USER_PASSWORD;
     if (!email || !password) {
-        throw new Error("❌ Congiguration error: USER_EMAIL or USER_PASSWORD is not set in environment variables.");
+      throw new Error(
+        '❌ Congiguration error: USER_EMAIL or USER_PASSWORD is not set in environment variables.',
+      );
     }
     await loginPage.login(email, password);
     const newWorkflowPage = await workspacePage.navigateAndCreateNewWorkflow();
