@@ -1,8 +1,6 @@
 module.exports = [
-  // ignora node_modules
   { ignores: ['node_modules/**'] },
 
-  // reglas para ficheros JS
   {
     files: ['**/*.js'],
     languageOptions: {
@@ -12,7 +10,6 @@ module.exports = [
     rules: {}
   },
 
-  // reglas para TypeScript
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
@@ -27,10 +24,8 @@ module.exports = [
     },
     plugins: {
       '@typescript-eslint': require('@typescript-eslint/eslint-plugin')
-      // 'playwright': require('eslint-plugin-playwright') // descomenta si instalas el plugin
     },
     rules: {
-      // reglas base TS (ajusta según prefieras)
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'warn'
