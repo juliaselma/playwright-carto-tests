@@ -446,23 +446,19 @@ export class WorkflowEditorPage {
   }
 
   async openMapInNewTab(mapUrl?: string): Promise<Page> {
-    // 1. Caso Sincronización (R3): Navegar directamente a la URL guardada
     if (mapUrl) {
       console.log(
-        `Abriendo URL de mapa guardada para sincronización: ${mapUrl}`,
+        `Opening the saved map URL for sync: ${mapUrl}`,
       );
 
-      // Ajuste de implementación para el caso mapUrl:
-      // La solución más limpia es crear la página y navegar en un solo paso de promesa.
       const newMapPage = await this.page.context().newPage();
       await newMapPage.goto(mapUrl);
       await newMapPage.waitForLoadState('load');
       return newMapPage;
     }
 
-    // 2. Caso Original (R1/R2): Clic en el locator visible para abrir el mapa
     console.log(
-      'Haciendo clic en el enlace del mapa para abrir en una nueva pestaña...',
+      'Clicking map link locator to open map in new tab...',
     );
 
     const [newMapPage] = await Promise.all([
@@ -471,19 +467,16 @@ export class WorkflowEditorPage {
     ]);
 
     await newMapPage.waitForURL('**/builder/*');
-    console.log('✅ Navegación exitosa a la página del mapa.');
+    console.log('✅ Successfully opened map in new tab.');
     return newMapPage;
   }
 
-  /**
-   * Método auxiliar para extraer la URL del mapa (necesario para R3).
-   */
   async getMapOutputUrl(): Promise<string> {
     await this.mapLinkLocator.waitFor({ state: 'visible' });
     const url = await this.mapLinkLocator.getAttribute('href');
     if (!url) {
       throw new Error(
-        'No se pudo extraer el atributo href del enlace del mapa.',
+        'Href attribute not found on the map link locator.',
       );
     }
     return url;
