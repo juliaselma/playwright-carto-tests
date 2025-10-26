@@ -8,7 +8,7 @@ export class LoginPage {
   constructor(public readonly page: Page) {}
 
   async login(email: string, password: string) {
-    console.log(`Iniciando sesión con ${email}`);
+    console.log(`Starting ${email} session login...`);
     await this.page
       .locator(this.emailInput)
       .waitFor({ state: 'visible', timeout: 15000 });

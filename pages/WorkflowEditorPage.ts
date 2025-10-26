@@ -335,7 +335,7 @@ export class WorkflowEditorPage {
     targetHandleId: string,
   ): Promise<void> {
     console.log(
-      `Conectando ${sourceNodeName} (${sourceHandleId}) -> ${targetNodeName} (${targetHandleId})`,
+      `Connecting ${sourceNodeName} (${sourceHandleId}) -> ${targetNodeName} (${targetHandleId})`,
     );
 
     // obtain the locators for the source and target handles
@@ -379,7 +379,7 @@ export class WorkflowEditorPage {
 
     const successMessageLocator = this.page.getByText(successMessageText);
 
-    console.log(`Verificando el mensaje de éxito: "${successMessageText}"`);
+    console.log(`Verifying success message: "${successMessageText}"`);
 
     await successMessageLocator.waitFor({
       state: 'visible',
@@ -390,7 +390,7 @@ export class WorkflowEditorPage {
   }
 
   async clearComponentSearch(): Promise<void> {
-    console.log('Limpiando el campo de búsqueda de componentes...');
+    console.log('clearing components search field...');
 
     const searchBox = this.page.getByRole('textbox', {
       name: 'Search component',
@@ -400,11 +400,11 @@ export class WorkflowEditorPage {
     await this.cleanInputButton.click();
     await expect(searchBox).toHaveValue('', { timeout: 5000 });
 
-    console.log('El campo de búsqueda ha sido limpiado.');
+    console.log('Search field cleared.');
   }
 
   async collapseResultsPanel(): Promise<void> {
-    console.log('Colapsando el panel de resultados para liberar espacio...');
+    console.log('Colapsing results panel...');
     await this.collapseResultsButton.click();
   }
 
@@ -468,7 +468,7 @@ export class WorkflowEditorPage {
   }
 
   async closeNodeConfigurationPanel(): Promise<void> {
-    console.log('Cerrando el panel de configuración del nodo...');
+    console.log('Closing node configuration panel...');
     await this.reactFlowRenderer.click();
   }
 
@@ -525,7 +525,7 @@ export class WorkflowEditorPage {
       }
     }
 
-    console.log(`✅ Validación ${mode}: ${count} filas verificadas.`);
+    console.log(`✅ Validation ${mode}: ${count} files checked.`);
     await this.closeNodeConfigurationPanel();
   }
 }

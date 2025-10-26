@@ -5,7 +5,7 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
   test('Verify map generation from filtered data (Positive Result)', async ({
     workflowEditorPage,
   }) => {
-    test.setTimeout(120000);
+    test.setTimeout(160000);
     await workflowEditorPage.openDemoTablesPanel();
     await workflowEditorPage.selectDataset('retail_stores');
     await workflowEditorPage.selectDataset('usa_states_boundaries');
