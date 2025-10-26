@@ -22,7 +22,7 @@ test.describe('TC-R1-001: Positive Result - Map Generation', () => {
       'source',
     );
     await workflowEditorPage.configureSimpleFilter(
-      testData.FILTER_STATE_POSITIVE,
+      testData.FILTER_STATE,
     );
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();

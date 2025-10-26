@@ -1,8 +1,7 @@
 interface WorkflowData {
     DATASET_STORES: string;
     DATASET_STATES: string;
-    FILTER_STATE_POSITIVE: string; // 'California'
-    FILTER_STATE_NEGATIVE: string; // Ej: 'Nevada' (o un valor no existente)
+    FILTER_STATE: string; // 'California'
     COMPONENT_FILTER: string;
     COMPONENT_SPATIAL_FILTER: string;
     COMPONENT_MAP: string;
@@ -22,8 +21,7 @@ export const testData: WorkflowData = {
     DATASET_STATES: 'usa_states_boundaries',
     
     // Filtros
-    FILTER_STATE_POSITIVE: 'California',
-    FILTER_STATE_NEGATIVE: 'Utah', // Ejemplo para negativo
+    FILTER_STATE: 'California',
     
     // Nombres de componentes (en el panel lateral)
     COMPONENT_FILTER: 'Simple Filter',
