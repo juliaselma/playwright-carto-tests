@@ -38,50 +38,6 @@ A user is able to create a map from two different sources using a filter table a
 
 ---
 
-#### 🧪TC-R1-001:
-
-Positive Result (Meets Criteria):
-
-Description:
-
-Verify that the map only contains the rows that meet the criterion.
-
-Steps:
-
-1. Create Workflow with 2 sources (A and B).
-
-2. Apply a filter (e.g., Value > X) between the sources.
-
-3. Connect the positive output (Meets criteria) to the Create Builder Map.
-
-4. Execute and open the map.
-
-Expected result:
-
-The map is successfully generated and only visualizes the rows that comply with the applied filter criterion.
-
----
-
-#### 🧪TC-R1-002
-
-Negative Result (Does Not Meet):
-
-Description:
-
-Verify that a table can be generated with the rows that do not meet the criterion.
-
-Steps:
-
-1. Configure the same previous Workflow.
-
-2. Connect the negative output (Does not meet criteria) to an Output node (Data Explorer or similar).
-
-Expected result:
-
-The Output node generates a table that only contains the rows that DO NOT comply with the filter criterion.
-
----
-
 ### 🎯 Requirement 2:
 
 Clarity of Data Reference (Metadata)
@@ -90,51 +46,87 @@ A user must have a clear reference to the data information of the Create Builder
 
 ---
 
-#### 🧪TC-R2-001
+### 🎯 Requirement 3:
+
+Persistence and Analytical Update
+
+Requirement 3:
+
+The user is able to ensure that the map stays up to date with the analytical results.
+
+---
+
+#### 🧪TC-1	Full Workflow: Positive Result (Data, Metadata & Map)
+
+Positive Result (Meets Criteria):
 
 Description:
 
-Key Metrics Visualization.
+Verify that the end-to-end workflow correctly generates a map from data meeting a specific spatial criterion. This includes validating data integrity, key metadata metrics in intermediate and final nodes, and the final map output.
 
 Steps:
 
-1. Select the Create Builder Map node after execution.
-2. Review the information in the configuration panel (or "Data" tab).
+1. Create Workflow with retail_stores and usa_states_boundaries datasets.
 
-Expected results:
+2. Configure a Simple Filter to select the geometry for the state of California.
 
-The fields ROWS COLS (Number of Rows and Columns) and updated at (Last Update Date) must be visible and display correct values.
+3. Connect the match output of the Simple Filter to the filter input of the Spatial Filter.
 
----
+4. Connect retail_stores to the source input of the Spatial Filter.
 
-#### 🧪TC-R2-002
+5. Execute the workflow.
 
-Access to Information Tabs.
+6. Select the Spatial Filter node and review key metadata (Rows, Cols, Updated At).
 
-1. Select the Create Builder Map node.
+7. Connect the match output of the Spatial Filter to the Create Builder Map.
+
+8. Execute the Create Builder Map node and review key metadata.
+
+9. Open the map in a new tab.
 
 Expected result:
 
-The Results, Messages, Data, Map, and SQL tabs must be present and functional for the user.
+A. Data Validation: The result table for the Spatial Filter contains rows that spatially intersect with California (Validation: the state column must contain 'CA' and the test is currently set to tolerate the known data bug 'NV').
+
+B. Metadata (R2): The Spatial Filter and Create Builder Map nodes must display the ROWS, COLS, and updated at metrics as visible and correctly populated.
+
+C. Map Output: The map is successfully generated and only visualizes the filtered points of sale.
 
 ---
 
-#### 🧪TC-R2-003
+#### 🧪TC-2	Full Workflow: Negative Result (Data Exclusion)
+
+Negative Result (Does Not Meet):
 
 Description:
 
-Clear Error Messages (UI).
+Verify that the workflow can correctly isolate and process data that DOES NOT meet the spatial criterion, validating data exclusion and metadata integrity.
+
 
 Steps:
 
-1. Connect a data source lacking a geometry column to the component (provoking an error).
-2. Review the preview and the "Messages" panel.
+1. Configure the same previous Workflow (Simple Filter on California).
+
+2. Connect the output unmatch of the Simple Filter to the filter input of the Spatial Filter.
+
+3. Execute the workflow.
+
+4. Select the node Spatial Filter and review key metadata.
+
+5. Connect the match output of the Spatial Filter to the Create Builder Map.
+
+6. Execute the Create Builder Map node and review key metadata.
 
 Expected result:
 
-A clear and useful error message indicating the cause (e.g., "Couldn't find geometry column") must be displayed.
+A. Data Validation: The result table for the Spatial Filter contains rows that DO NOT intersect with the geometry of California (Validation: the state column must exclude 'CA').
+
+B. Metadata (R2): The Spatial Filter and Create Builder Map nodes must display the ROWS, COLS, and updated at metrics as visible and correctly populated.
+
+C. Map Output: The map is successfully generated and visualizes points of sale outside the California area.
 
 ---
+
 
 ### 🎯 Requirement 3:
 
