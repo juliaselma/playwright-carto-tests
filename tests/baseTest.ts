@@ -4,10 +4,6 @@ import { LoginPage } from '../pages/LoginPage';
 import { WorkspacePage } from '../pages/WorkspacePage';
 import { WorkflowEditorPage } from '../pages/WorkflowEditorPage';
 
-//onst USER_EMAIL = 'juliaselma@gmail.com';
-
-//const USER_PASSWORD = 'Dachibb1901$';
-
 // Custom fixtures
 type MyFixtures = {
   setupLogin: { editorPage: Page };

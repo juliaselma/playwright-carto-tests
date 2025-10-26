@@ -8,6 +8,13 @@ export class LoginPage {
   constructor(public readonly page: Page) {}
 
   async login(email: string, password: string) {
+    const workflows_URL = process.env.CARTO_APP_BASE_URL;
+
+    if (!workflows_URL) {
+      throw new Error(
+        '❌CARTO_APP_BASE_URL is not set in environment variables.',
+      );
+    }
     console.log(`Starting ${email} session login...`);
     await this.page
       .locator(this.emailInput)
@@ -15,7 +22,7 @@ export class LoginPage {
     await this.page.fill(this.emailInput, email);
     await this.page.fill(this.passwordInput, password);
     await this.page.click(this.loginButton);
-    await this.page.waitForURL('https://clausa.app.carto.com/');
+    await this.page.waitForURL(workflows_URL);
     const loginHeader = this.page.getByRole('heading', {
       name: 'Welcome to CARTO',
     });

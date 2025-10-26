@@ -6,7 +6,11 @@ export class HomePage {
 
   async navigateToLogin() {
     console.log('Navigating to log in page');
-    await this.page.goto('https://carto.com/');
+    const baseURL = process.env.BASE_URL;
+    if (!baseURL) {
+        throw new Error("❌ Congiguration error: BASE_URL is not set in environment variables.");
+    }
+    await this.page.goto(baseURL);
     await this.page.click(this.loginButton);
     await this.page.waitForURL('**/u/login*');
     const loginHeader = this.page.getByRole('heading', { name: 'Log in' });
