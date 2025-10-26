@@ -8,11 +8,11 @@ interface EvaluateArgs {
 //Node dimensions and spacing for layout calculations
 const NODE_HEIGHT = 50;
 const VERTICAL_SPACING = 30;
-const NODE_WIDTH = 180; // Ancho estimado del nodo (ajustar según tu UI)
-const HORIZONTAL_SPACING = 100; // Espacio entre nodos horizontalmente
+const NODE_WIDTH = 180;
+const HORIZONTAL_SPACING = 100;
 
 export class WorkflowEditorPage {
-  //locators
+  //Locators
   private readonly workflowCanvas: Locator;
   private readonly connectionDataButton =
     this.page.getByText('Connection data');
@@ -46,51 +46,21 @@ export class WorkflowEditorPage {
       hasText: componentName,
     });
   }
-  /**
-   * Obtiene el locator para el handle de SALIDA de un nodo (data-handleid="out").
-   */
-  private getOutputHandleLocator(nodeName: string): Locator {
-    // 1. Obtiene el locator del nodo
-    const nodeLocator = this.page
-      .locator('.react-flow__node')
-      .filter({ hasText: nodeName });
-
-    // 2. Busca el handle de SALIDA dentro del nodo
-    // ⭐ Selector Específico: div con atributo data-handleid="out" ⭐
-    return nodeLocator.locator('div[data-handleid="out"]');
-  }
-
-  /**
-   * Obtiene el locator para el handle de ENTRADA de un nodo (data-handleid="source").
-   */
-  private getInputHandleLocator(nodeName: string): Locator {
-    const nodeLocator = this.page
-      .locator('.react-flow__node')
-      .filter({ hasText: nodeName });
-
-    // 2. Busca el handle de ENTRADA dentro del nodo
-    // ⭐ Selector Específico: div con atributo data-handleid="source" ⭐
-    return nodeLocator.locator('div[data-handleid="source"]');
-  }
-
   private getHandleLocator(nodeName: string, handleId: string): Locator {
     const nodeLocator = this.page
       .locator('.react-flow__node')
       .filter({ hasText: nodeName });
 
-    // Busca el handle dentro del nodo usando el data-handleid
+    // Search for the handle within the node
     return nodeLocator.locator(`div[data-handleid="${handleId}"]`);
   }
   private readonly filterValueInput = this.page.getByRole('textbox', {
     name: 'Value',
   });
-
   private readonly runButton = this.page.getByRole('button', {
     name: 'run-workflow-button',
   });
-
   private readonly cleanInputButton = this.page.locator('.css-y6fh4i');
-
   private readonly collapseResultsButton = this.page.getByRole('button', {
     name: 'collapse-workflow-tabs-button',
   });
@@ -108,10 +78,12 @@ export class WorkflowEditorPage {
     '.react-flow__renderer',
   );
 
+  //Constructor
   constructor(public readonly page: Page) {
     this.workflowCanvas = page.locator(this.canvasSelector);
   }
 
+  //Methods
   async selectDataset(datasetName: string) {
     const datasetItem = await this.findDatasetItem(datasetName);
 
@@ -215,7 +187,7 @@ export class WorkflowEditorPage {
 
     if (!found) {
       throw new Error(
-        `El dataset "${datasetName}" no se encontró después de intentar el scroll (Lazy Loading Fallido).`,
+        `The dataset "${datasetName}" was not found after scrolling through the list.`,
       );
     }
 
@@ -359,22 +331,18 @@ export class WorkflowEditorPage {
   async connectNodes(
     sourceNodeName: string,
     targetNodeName: string,
-    sourceHandleId: string, // Valor de data-handleid de origen (ej: 'match', 'out')
-    targetHandleId: string, // Valor de data-handleid de destino (ej: 'secondarytable', 'source')
+    sourceHandleId: string,
+    targetHandleId: string,
   ): Promise<void> {
     console.log(
       `Conectando ${sourceNodeName} (${sourceHandleId}) -> ${targetNodeName} (${targetHandleId})`,
     );
 
-    // 1. Obtener los handles usando el nuevo método unificado
+    // obtain the locators for the source and target handles
     const sourceHandle = this.getHandleLocator(sourceNodeName, sourceHandleId);
     const targetHandle = this.getHandleLocator(targetNodeName, targetHandleId);
 
-    // 2. Asegurar que ambos handles estén visibles
-    //await sourceHandle.waitFor({ state: 'visible', timeout: 10000 });
-    //await targetHandle.waitFor({ state: 'visible', timeout: 10000 });
-
-    // 3. Clic Explícito y Arrastre
+    //click and drag from source to target
     await sourceHandle.click({ timeout: 5000 });
     await sourceHandle.dragTo(targetHandle, {
       timeout: 15000,
@@ -385,6 +353,7 @@ export class WorkflowEditorPage {
   async configureSimpleFilter(value: string): Promise<void> {
     await this.filterValueInput.fill(value);
   }
+
   async runWorkflow(): Promise<void> {
     await this.runButton.click();
     await this.waitForWorkflowToComplete();
@@ -417,10 +386,7 @@ export class WorkflowEditorPage {
       timeout: 10000,
     });
 
-    // 3. (Opcional) Aserción explícita (si estás usando la librería 'expect' de Playwright)
     await expect(successMessageLocator).toBeVisible();
-
-    //await this.collapseResultsPanel();
   }
 
   async clearComponentSearch(): Promise<void> {
@@ -429,15 +395,9 @@ export class WorkflowEditorPage {
     const searchBox = this.page.getByRole('textbox', {
       name: 'Search component',
     });
-    //const cleanInputButton = this.page.locator('.css-y6fh4i');
 
-    // 1. Esperar y hacer clic en el botón 'X'
     await this.cleanInputButton.waitFor({ state: 'visible', timeout: 5000 });
     await this.cleanInputButton.click();
-
-    // 2. ⭐ CORRECCIÓN: Esperar que el valor del input sea vacío ⭐
-    // Usamos el método expect(locator).toHaveValue('') con un timeout.
-    // Esto es mucho más legible y robusto.
     await expect(searchBox).toHaveValue('', { timeout: 5000 });
 
     console.log('El campo de búsqueda ha sido limpiado.');
@@ -445,89 +405,55 @@ export class WorkflowEditorPage {
 
   async collapseResultsPanel(): Promise<void> {
     console.log('Colapsando el panel de resultados para liberar espacio...');
-
-    // 1. Esperar a que el botón esté visible (asumiendo que solo está visible cuando el panel está abierto)
-    /*await this.collapseResultsButton.waitFor({
-      state: 'visible',
-      timeout: 5000,
-    });*/
-
-    // 2. Hacer clic en el botón de colapso
     await this.collapseResultsButton.click();
-
-    // Opcional: Esperar a que el botón de colapso desaparezca o cambie de rol/dirección (ej: a expand-button)
-    // await this.collapseResultsButton.waitFor({ state: 'hidden' });
   }
 
   async openNodeConfiguration(nodeName: string): Promise<void> {
-    // Localiza el nodo basado en el texto visible en el canvas
+    // localize the node based on the visible text in the canvas
     const nodeLocator = this.page
       .locator('.react-flow__node')
       .filter({ hasText: nodeName });
 
-    // 1. Esperar a que el nodo esté visible
     await nodeLocator.waitFor({ state: 'visible', timeout: 10000 });
-
-    // 2. Simular doble clic (dblclick) para abrir el panel lateral de configuración
     await nodeLocator.dblclick();
-
-    // Opcional: Esperar a que el panel de configuración se cargue y sea visible
-    // Por ejemplo, esperando el encabezado del panel:
-    // await this.page.getByRole('heading', { name: nodeName }).waitFor();
   }
+
   async selectNode(nodeName: string): Promise<void> {
-    // Localiza el nodo basado en el texto visible en el canvas
+    // localize the node based on the visible text in the canvas
     const nodeLocator = this.page
       .locator('.react-flow__node')
       .filter({ hasText: nodeName });
 
-    // 1. Esperar a que el nodo esté visible
     await nodeLocator.waitFor({ state: 'visible', timeout: 10000 });
-
-    // 2. Simular doble clic (dblclick) para abrir el panel lateral de configuración
     await nodeLocator.click();
   }
 
   async setMapName(mapName: string): Promise<void> {
-    console.log(`Estableciendo el nombre del mapa a: "${mapName}"`);
-
-    // 1. Esperar a que el campo de entrada esté visible
-    // Playwright implícitamente espera usando getByRole
-    //await this.mapNameInput.waitFor({ state: 'visible', timeout: 5000 });
-
-    // 2. Escribir el nuevo nombre
+    console.log(`Setting map name: "${mapName}"`);
     await this.mapNameInput.fill(mapName);
   }
 
   async openMapInNewTab(): Promise<Page> {
     console.log('Navigating to the map from the Data tab...');
-
-    // 1. Aseguramos que la pestaña 'Data' esté activa
-    // (Si ya estás en la pestaña, este clic está bien, si no, puedes necesitar un 'openDataTab()')
     await this.dataTab.click();
 
-    // Locator para el enlace
+    // Locator for the map link
     const mapLinkLocator = this.page.getByRole('link', {
       name: 'https://clausa.app.carto.com/',
     });
 
-    console.log(
-      'Haciendo clic en el enlace del mapa y esperando la nueva pestaña...',
-    );
+    console.log('clicking the map link to open in a new tab...');
 
-    // ⭐ CORRECCIÓN DE LA SINCRONIZACIÓN Y SINTAXIS ⭐
-    // Usamos Promise.all para esperar simultáneamente el clic Y la apertura de la nueva página.
+    // Promise.all to wait for the new page event and click action
     const [newMapPage] = await Promise.all([
-      // 1. Promesa: Esperar el evento de nueva página/pestaña (popup)
+      // promise: wait for the new tab to open
       this.page.waitForEvent('popup'),
-      // 2. Acción: Hacer clic en el locator (que dispara la nueva pestaña)
+      // action: click the link
       mapLinkLocator.click({ timeout: 10000 }),
     ]);
 
-    // 2. Esperar la URL específica o el estado de carga
     await newMapPage.waitForURL('**/builder/*');
     console.log('Successfully navigated to Map page.');
-
     return newMapPage;
   }
 
@@ -541,87 +467,30 @@ export class WorkflowEditorPage {
     });
   }
 
-  /*async assertStateExcludesCA(regionName: string): Promise<void> {
-    this.selectNode('Spatial Filter');
-    console.log(`Asserting that data excludes region: "${regionName}"...`);
-
-    await this.dataTab.waitFor({ state: 'visible', timeout: 5000 });
-    //await this.page.pause();
-    await this.dataTab.click();
-    //this.selectNode('Spatial Filter');
-    await this.page.waitForTimeout(2000); // Espera para asegurar que los datos se carguen
-    //await this.page.pause();
-    await this.scrollToElementHorizontal(this.stateColumnHeader);
-
-    // 3. Obtener el índice de la columna 'state'
-    const stateHeaderIndex = await this.stateColumnHeader.evaluate(element => {
-      // Encontrar el índice de la celda de encabezado dentro de su fila (thead > tr)
-      const row = element.closest('tr');
-      if (!row) return -1;
-      return Array.from(row.children).indexOf(element);
-    });
-
-    if (stateHeaderIndex === -1) {
-      throw new Error("No se pudo determinar la columna 'state'.");
-    }
-
-    // 4. Localizar todas las celdas de datos (td) de la columna 'state'
-    // Selector XPath o CSS que busca la N-ésima celda (td) en cada fila (tr) del cuerpo (tbody)
-    const stateCells = this.page.locator(
-      `tbody tr td:nth-child(${stateHeaderIndex + 1})`,
-    );
-
-    const count = await stateCells.count();
-
-    // 5. Iterar sobre todas las celdas y validar el contenido
-    for (let i = 0; i < count; ++i) {
-      const cell = stateCells.nth(i);
-      // Validar que el texto de la celda es exactamente 'CA' (o el texto que corresponde a esa columna)
-      await expect(cell).not.toHaveText('CA', { timeout: 5000 });
-    }
-
-    console.log(
-      `✅ Validación Positiva: Las ${count} filas de la columna 'state' no contienen 'CA'.`,
-    );
-    await this.closeNodeConfigurationPanel();
-  }*/
   async closeNodeConfigurationPanel(): Promise<void> {
     console.log('Cerrando el panel de configuración del nodo...');
-
-    // 1. Esperar a que el pane esté visible
-    //await this.reactFlowRenderer.waitFor({ state: 'visible', timeout: 5000 });
-
-    // 2. Hacer clic en el centro del pane. Este clic fuera de la configuración
-    // suele ser la acción que la descarta.
     await this.reactFlowRenderer.click();
-
-    // Opcional: Agregar una aserción para verificar que el panel desaparece
-    // Por ejemplo: esperar que el encabezado del panel ya no esté visible.
-    // await this.page.getByRole('heading', { name: 'Simple Filter' }).waitFor({ state: 'hidden' });
   }
+
   async assertStateColumnContent(
     expectedState: string,
     mode: 'includes' | 'excludes',
   ): Promise<void> {
-    // Asumiendo que 'this.dataTab' y 'this.stateColumnHeader' son locators definidos.
-    // Asumiendo que 'this.scrollToElementHorizontal' y 'this.selectNode' existen.
+    //To address test failures due to additional states being present because of known issues
     const allowedStatesForBugFix = [expectedState, 'NV'];
 
     await this.selectNode('Spatial Filter');
 
     console.log(`Asserting data ${mode} region: "${expectedState}"...`);
 
-    // 1. Navegar a la pestaña Data
     await this.dataTab.waitFor({ state: 'visible', timeout: 5000 });
     await this.dataTab.click();
 
-    // Dar tiempo para que la tabla se re-renderice con los datos
     await this.page.waitForTimeout(2000);
 
-    // 2. Hacer scroll para ver la columna 'state'
     await this.scrollToElementHorizontal(this.stateColumnHeader);
 
-    // 3. Obtener el índice de la columna 'state'
+    //Obtain the index of the 'state' column
     const stateHeaderIndex = await this.stateColumnHeader.evaluate(element => {
       const row = element.closest('tr');
       if (!row) return -1;
@@ -629,41 +498,34 @@ export class WorkflowEditorPage {
     });
 
     if (stateHeaderIndex === -1) {
-      throw new Error("No se pudo determinar la columna 'state'.");
+      throw new Error('State column header not found.');
     }
 
-    // 4. Localizar todas las celdas de datos (td) de la columna 'state'
+    //Locate all cells in the 'state' column
     const stateCells = this.page.locator(
       `tbody tr td:nth-child(${stateHeaderIndex + 1})`,
     );
     const count = await stateCells.count();
 
-    // 5. Iterar sobre todas las celdas y aplicar la aserción basada en 'mode'
+    // Iterate through each cell and validate content based on mode
     for (let i = 0; i < count; ++i) {
       const cell = stateCells.nth(i);
 
       if (mode === 'includes') {
-        // Escenario Positivo: TODAS las celdas DEBEN tener el texto (ej: 'CA')
-        //await expect(cell).toHaveText(expectedState, { timeout: 5000 });
+        //await expect(cell).toHaveText(expectedState, { timeout: 5000 }); --- ORIGINAL ---
         const actualText = await cell.innerText();
 
-        // ⭐ Lógica para Aceptar Múltiples Estados ⭐
-        // Si el texto de la celda NO está en la lista de permitidos, forzamos un fallo claro.
         if (!allowedStatesForBugFix.includes(actualText)) {
-          // Usamos la aserción de Playwright para generar un fallo limpio
           throw new Error(
             `Expected cell to contain one of [${allowedStatesForBugFix.join(', ')}] but found: '${actualText}'.`,
           );
         }
       } else if (mode === 'excludes') {
-        // Escenario Negativo: NINGUNA celda DEBE tener el texto (ej: 'CA')
         await expect(cell).not.toHaveText(expectedState, { timeout: 5000 });
       }
     }
 
     console.log(`✅ Validación ${mode}: ${count} filas verificadas.`);
-
-    // 6. Cerrar el panel de configuración (si el panel de resultados lo es o si estaba abierto)
     await this.closeNodeConfigurationPanel();
   }
 }
