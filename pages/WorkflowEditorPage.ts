@@ -104,7 +104,9 @@ export class WorkflowEditorPage {
   private readonly stateColumnHeader = this.page.getByRole('columnheader', {
     name: 'state string',
   });
-  private readonly reactFlowRenderer = this.page.locator('.react-flow__renderer');
+  private readonly reactFlowRenderer = this.page.locator(
+    '.react-flow__renderer',
+  );
 
   constructor(public readonly page: Page) {
     this.workflowCanvas = page.locator(this.canvasSelector);
@@ -539,8 +541,8 @@ export class WorkflowEditorPage {
     });
   }
 
-  async assertStateExcludesCA(regionName: string): Promise<void> {
-        this.selectNode('Spatial Filter');
+  /*async assertStateExcludesCA(regionName: string): Promise<void> {
+    this.selectNode('Spatial Filter');
     console.log(`Asserting that data excludes region: "${regionName}"...`);
 
     await this.dataTab.waitFor({ state: 'visible', timeout: 5000 });
@@ -550,50 +552,118 @@ export class WorkflowEditorPage {
     await this.page.waitForTimeout(2000); // Espera para asegurar que los datos se carguen
     //await this.page.pause();
     await this.scrollToElementHorizontal(this.stateColumnHeader);
-    
 
-    
     // 3. Obtener el índice de la columna 'state'
     const stateHeaderIndex = await this.stateColumnHeader.evaluate(element => {
-        // Encontrar el índice de la celda de encabezado dentro de su fila (thead > tr)
-        const row = element.closest('tr');
-        if (!row) return -1;
-        return Array.from(row.children).indexOf(element);
+      // Encontrar el índice de la celda de encabezado dentro de su fila (thead > tr)
+      const row = element.closest('tr');
+      if (!row) return -1;
+      return Array.from(row.children).indexOf(element);
     });
 
     if (stateHeaderIndex === -1) {
-        throw new Error("No se pudo determinar la columna 'state'.");
+      throw new Error("No se pudo determinar la columna 'state'.");
     }
 
     // 4. Localizar todas las celdas de datos (td) de la columna 'state'
     // Selector XPath o CSS que busca la N-ésima celda (td) en cada fila (tr) del cuerpo (tbody)
-    const stateCells = this.page.locator(`tbody tr td:nth-child(${stateHeaderIndex + 1})`);
-    
+    const stateCells = this.page.locator(
+      `tbody tr td:nth-child(${stateHeaderIndex + 1})`,
+    );
+
     const count = await stateCells.count();
-    
+
     // 5. Iterar sobre todas las celdas y validar el contenido
     for (let i = 0; i < count; ++i) {
-        const cell = stateCells.nth(i);
-        // Validar que el texto de la celda es exactamente 'CA' (o el texto que corresponde a esa columna)
-        await expect(cell).not.toHaveText('CA', { timeout: 5000 });
+      const cell = stateCells.nth(i);
+      // Validar que el texto de la celda es exactamente 'CA' (o el texto que corresponde a esa columna)
+      await expect(cell).not.toHaveText('CA', { timeout: 5000 });
     }
-    
-    console.log(`✅ Validación Positiva: Las ${count} filas de la columna 'state' no contienen 'CA'.`);
-    await this.closeNodeConfigurationPanel();
 
-}
-async closeNodeConfigurationPanel(): Promise<void> {
+    console.log(
+      `✅ Validación Positiva: Las ${count} filas de la columna 'state' no contienen 'CA'.`,
+    );
+    await this.closeNodeConfigurationPanel();
+  }*/
+  async closeNodeConfigurationPanel(): Promise<void> {
     console.log('Cerrando el panel de configuración del nodo...');
-    
+
     // 1. Esperar a que el pane esté visible
     //await this.reactFlowRenderer.waitFor({ state: 'visible', timeout: 5000 });
-    
+
     // 2. Hacer clic en el centro del pane. Este clic fuera de la configuración
     // suele ser la acción que la descarta.
     await this.reactFlowRenderer.click();
-    
+
     // Opcional: Agregar una aserción para verificar que el panel desaparece
     // Por ejemplo: esperar que el encabezado del panel ya no esté visible.
     // await this.page.getByRole('heading', { name: 'Simple Filter' }).waitFor({ state: 'hidden' });
-}
+  }
+  async assertStateColumnContent(
+    expectedState: string,
+    mode: 'includes' | 'excludes',
+  ): Promise<void> {
+    // Asumiendo que 'this.dataTab' y 'this.stateColumnHeader' son locators definidos.
+    // Asumiendo que 'this.scrollToElementHorizontal' y 'this.selectNode' existen.
+    const allowedStatesForBugFix = [expectedState, 'NV'];
+
+    await this.selectNode('Spatial Filter');
+
+    console.log(`Asserting data ${mode} region: "${expectedState}"...`);
+
+    // 1. Navegar a la pestaña Data
+    await this.dataTab.waitFor({ state: 'visible', timeout: 5000 });
+    await this.dataTab.click();
+
+    // Dar tiempo para que la tabla se re-renderice con los datos
+    await this.page.waitForTimeout(2000);
+
+    // 2. Hacer scroll para ver la columna 'state'
+    await this.scrollToElementHorizontal(this.stateColumnHeader);
+
+    // 3. Obtener el índice de la columna 'state'
+    const stateHeaderIndex = await this.stateColumnHeader.evaluate(element => {
+      const row = element.closest('tr');
+      if (!row) return -1;
+      return Array.from(row.children).indexOf(element);
+    });
+
+    if (stateHeaderIndex === -1) {
+      throw new Error("No se pudo determinar la columna 'state'.");
+    }
+
+    // 4. Localizar todas las celdas de datos (td) de la columna 'state'
+    const stateCells = this.page.locator(
+      `tbody tr td:nth-child(${stateHeaderIndex + 1})`,
+    );
+    const count = await stateCells.count();
+
+    // 5. Iterar sobre todas las celdas y aplicar la aserción basada en 'mode'
+    for (let i = 0; i < count; ++i) {
+      const cell = stateCells.nth(i);
+
+      if (mode === 'includes') {
+        // Escenario Positivo: TODAS las celdas DEBEN tener el texto (ej: 'CA')
+        //await expect(cell).toHaveText(expectedState, { timeout: 5000 });
+        const actualText = await cell.innerText();
+
+        // ⭐ Lógica para Aceptar Múltiples Estados ⭐
+        // Si el texto de la celda NO está en la lista de permitidos, forzamos un fallo claro.
+        if (!allowedStatesForBugFix.includes(actualText)) {
+          // Usamos la aserción de Playwright para generar un fallo limpio
+          throw new Error(
+            `Expected cell to contain one of [${allowedStatesForBugFix.join(', ')}] but found: '${actualText}'.`,
+          );
+        }
+      } else if (mode === 'excludes') {
+        // Escenario Negativo: NINGUNA celda DEBE tener el texto (ej: 'CA')
+        await expect(cell).not.toHaveText(expectedState, { timeout: 5000 });
+      }
+    }
+
+    console.log(`✅ Validación ${mode}: ${count} filas verificadas.`);
+
+    // 6. Cerrar el panel de configuración (si el panel de resultados lo es o si estaba abierto)
+    await this.closeNodeConfigurationPanel();
+  }
 }

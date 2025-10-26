@@ -35,7 +35,9 @@ test.describe('TC-R1-002: Negative Result - Map Generation', () => {
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
     await workflowEditorPage.selectNode('Spatial Filter');
-    await workflowEditorPage.assertStateExcludesCA('CA');
+    //await workflowEditorPage.assertStateExcludesCA('CA');
+    
+    await workflowEditorPage.assertStateColumnContent('CA', 'excludes')
     await workflowEditorPage.collapseResultsPanel();
     await workflowEditorPage.clearComponentSearch();
     await workflowEditorPage.dragComponent(
