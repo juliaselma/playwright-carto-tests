@@ -21,7 +21,9 @@ test.describe('TC-2: Negative Result - Full Validation (Data, Metrics, Map)', ()
       'out',
       'source',
     );
-    await workflowEditorPage.configureSimpleFilter(testData.FILTER_STATE_POSITIVE);
+    await workflowEditorPage.configureSimpleFilter(
+      testData.FILTER_STATE_POSITIVE,
+    );
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
     await workflowEditorPage.collapseResultsPanel();
@@ -39,7 +41,10 @@ test.describe('TC-2: Negative Result - Full Validation (Data, Metrics, Map)', ()
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
     await workflowEditorPage.selectNode(testData.NODE_SPATIAL_FILTER);
-    await workflowEditorPage.assertStateColumnContent(testData.STATE_CODE_POSITIVE, 'excludes');
+    await workflowEditorPage.assertStateColumnContent(
+      testData.STATE_CODE_POSITIVE,
+      'excludes',
+    );
     await workflowEditorPage.collapseResultsPanel();
     await workflowEditorPage.clearComponentSearch();
     await workflowEditorPage.dragComponent(

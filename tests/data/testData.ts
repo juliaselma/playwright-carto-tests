@@ -2,7 +2,7 @@ interface WorkflowData {
   DATASET_STORES: string;
   DATASET_STATES: string;
   FILTER_STATE_POSITIVE: string;
-  FILTER_STATE_UPDATE: string,
+  FILTER_STATE_UPDATE: string;
   STATE_CODE_POSITIVE: string;
   STATE_CODE_UPDATE: string;
   COMPONENT_FILTER: string;

@@ -15,19 +15,23 @@ export const test = baseTest.extend<MyFixtures>({
     const loginPage = new LoginPage(page);
     const workspacePage = new WorkspacePage(page); // Ahora workspacePage está definido y se puede usar
 
-     console.log('-> Running setupLogin: Performing login and creating new workflow.');
+    console.log(
+      '-> Running setupLogin: Performing login and creating new workflow.',
+    );
 
-     await homePage.navigateToLogin();
-     const email = process.env.USER_EMAIL;
-     const password = process.env.USER_PASSWORD;
-     if (!email || !password) {
-      throw new Error('❌ Configuration error: USER_EMAIL or USER_PASSWORD is not set in environment variables.');
+    await homePage.navigateToLogin();
+    const email = process.env.USER_EMAIL;
+    const password = process.env.USER_PASSWORD;
+    if (!email || !password) {
+      throw new Error(
+        '❌ Configuration error: USER_EMAIL or USER_PASSWORD is not set in environment variables.',
+      );
     }
-     await loginPage.login(email, password);
+    await loginPage.login(email, password);
 
     const newWorkflowPage = await workspacePage.navigateAndCreateNewWorkflow();
 
-    await use({ editorPage: newWorkflowPage }); 
+    await use({ editorPage: newWorkflowPage });
   },
 
   workflowEditorPage: async ({ setupLogin }, use) => {

@@ -447,9 +447,7 @@ export class WorkflowEditorPage {
 
   async openMapInNewTab(mapUrl?: string): Promise<Page> {
     if (mapUrl) {
-      console.log(
-        `Opening the saved map URL for sync: ${mapUrl}`,
-      );
+      console.log(`Opening the saved map URL for sync: ${mapUrl}`);
 
       const newMapPage = await this.page.context().newPage();
       await newMapPage.goto(mapUrl);
@@ -457,9 +455,7 @@ export class WorkflowEditorPage {
       return newMapPage;
     }
 
-    console.log(
-      'Clicking map link locator to open map in new tab...',
-    );
+    console.log('Clicking map link locator to open map in new tab...');
 
     const [newMapPage] = await Promise.all([
       this.page.waitForEvent('popup'),
@@ -475,9 +471,7 @@ export class WorkflowEditorPage {
     await this.mapLinkLocator.waitFor({ state: 'visible' });
     const url = await this.mapLinkLocator.getAttribute('href');
     if (!url) {
-      throw new Error(
-        'Href attribute not found on the map link locator.',
-      );
+      throw new Error('Href attribute not found on the map link locator.');
     }
     return url;
   }

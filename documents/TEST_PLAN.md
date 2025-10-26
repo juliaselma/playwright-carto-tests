@@ -65,6 +65,7 @@ Description:
 Verify that the complete end-to-end workflow correctly generates and synchronizes a map based on updated spatial criteria. This test validates initial data integrity (Requirement 1), key metadata metrics (Requirement 2), map output (Requirement 2), and the automatic synchronization of the map when the input filter is changed (Requirement 3).
 
 #### I. Setup and Initial Validation (California - CA)
+
 1. Create Workflow: Start the workflow using the retail_stores and usa_states_boundaries datasets.
 
 2. Initial Filter: Configure a Simple Filter to select the geometry for the state of California (CA).
@@ -84,6 +85,7 @@ Verify that the complete end-to-end workflow correctly generates and synchronize
 9. Close the map tab.
 
 #### II. Synchronization Cycle (Texas - TX)
+
 10. Update Filter: Modify the configuration of the Simple Filter to select the geometry for the state of Texas (TX).
 
 11. Re-Execute: Execute the complete workflow.
@@ -135,7 +137,6 @@ B. Metadata (R2): The Spatial Filter and Create Builder Map nodes must display t
 C. Map Output: The map is successfully generated and visualizes points of sale outside the California area.
 
 ---
-
 
 #### 🧪TC-R3-001
 

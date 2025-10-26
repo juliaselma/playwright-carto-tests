@@ -72,7 +72,8 @@ test.describe('TC-1: Positive Result - Full Validation (Data, Metrics, Map, Map 
     await workflowEditorPage.assertMapOutputSchema();
     const mapUrl = await workflowEditorPage.getMapOutputUrl();
 
-    const newMapPageInstanceCA = await workflowEditorPage.openMapInNewTab(mapUrl);
+    const newMapPageInstanceCA =
+      await workflowEditorPage.openMapInNewTab(mapUrl);
     const mapPageObjectCA = new MapBuilderPage(newMapPageInstanceCA);
     await mapPageObjectCA.validateMapLoaded();
     // crear metodo de validacion en el mapa
