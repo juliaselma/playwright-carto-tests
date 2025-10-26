@@ -1,7 +1,10 @@
 interface WorkflowData {
   DATASET_STORES: string;
   DATASET_STATES: string;
-  FILTER_STATE: string;
+  FILTER_STATE_POSITIVE: string;
+  FILTER_STATE_UPDATE: string,
+  STATE_CODE_POSITIVE: string;
+  STATE_CODE_UPDATE: string;
   COMPONENT_FILTER: string;
   COMPONENT_SPATIAL_FILTER: string;
   COMPONENT_MAP: string;
@@ -17,7 +20,10 @@ interface WorkflowData {
 export const testData: WorkflowData = {
   DATASET_STORES: 'retail_stores',
   DATASET_STATES: 'usa_states_boundaries',
-  FILTER_STATE: 'California',
+  FILTER_STATE_POSITIVE: 'California',
+  STATE_CODE_POSITIVE: 'CA',
+  FILTER_STATE_UPDATE: 'Texas',
+  STATE_CODE_UPDATE: 'TX',
   COMPONENT_FILTER: 'Simple Filter',
   COMPONENT_SPATIAL_FILTER: 'Spatial Filter',
   COMPONENT_MAP: 'Create Builder Map',

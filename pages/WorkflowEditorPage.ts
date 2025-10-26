@@ -86,6 +86,9 @@ export class WorkflowEditorPage {
   private readonly updatedAtMapColumnHeader = this.page.locator(
     'thead th:has-text("updated_at")',
   );
+  private mapLinkLocator = this.page.getByRole('link', {
+    name: 'https://clausa.app.carto.com/',
+  });
 
   //Constructor
   constructor(public readonly page: Page) {
@@ -442,25 +445,53 @@ export class WorkflowEditorPage {
     await this.mapNameInput.fill(mapName);
   }
 
-  async openMapInNewTab(): Promise<Page> {
-    // Locator for the map link
-    const mapLinkLocator = this.page.getByRole('link', {
-      name: 'https://clausa.app.carto.com/',
-    });
+  async openMapInNewTab(mapUrl?: string): Promise<Page> {
+    // 1. Caso Sincronización (R3): Navegar directamente a la URL guardada
+    if (mapUrl) {
+      console.log(
+        `Abriendo URL de mapa guardada para sincronización: ${mapUrl}`,
+      );
 
-    console.log('clicking the map link to open in a new tab...');
+      // Ajuste de implementación para el caso mapUrl:
+      // La solución más limpia es crear la página y navegar en un solo paso de promesa.
+      const newMapPage = await this.page.context().newPage();
+      await newMapPage.goto(mapUrl);
+      await newMapPage.waitForLoadState('load');
+      return newMapPage;
+    }
 
-    // Promise.all to wait for the new page event and click action
+    // 2. Caso Original (R1/R2): Clic en el locator visible para abrir el mapa
+    console.log(
+      'Haciendo clic en el enlace del mapa para abrir en una nueva pestaña...',
+    );
+
     const [newMapPage] = await Promise.all([
-      // promise: wait for the new tab to open
       this.page.waitForEvent('popup'),
-      // action: click the link
-      mapLinkLocator.click({ timeout: 10000 }),
+      this.mapLinkLocator.click({ timeout: 10000 }),
     ]);
 
     await newMapPage.waitForURL('**/builder/*');
-    console.log('Successfully navigated to Map page.');
+    console.log('✅ Navegación exitosa a la página del mapa.');
     return newMapPage;
+  }
+
+  /**
+   * Método auxiliar para extraer la URL del mapa (necesario para R3).
+   */
+  async getMapOutputUrl(): Promise<string> {
+    await this.mapLinkLocator.waitFor({ state: 'visible' });
+    const url = await this.mapLinkLocator.getAttribute('href');
+    if (!url) {
+      throw new Error(
+        'No se pudo extraer el atributo href del enlace del mapa.',
+      );
+    }
+    return url;
+  }
+
+  async closeNodeConfigurationPanel(): Promise<void> {
+    console.log('Closing node configuration panel...');
+    await this.reactFlowRenderer.click();
   }
 
   async scrollToElementHorizontal(elementLocator: Locator): Promise<void> {
@@ -471,11 +502,6 @@ export class WorkflowEditorPage {
         inline: 'end',
       });
     });
-  }
-
-  async closeNodeConfigurationPanel(): Promise<void> {
-    console.log('Closing node configuration panel...');
-    await this.reactFlowRenderer.click();
   }
 
   async assertStateColumnContent(

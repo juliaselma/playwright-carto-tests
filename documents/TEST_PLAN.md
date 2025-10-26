@@ -56,7 +56,7 @@ The user is able to ensure that the map stays up to date with the analytical res
 
 ---
 
-#### 🧪TC-1	Full Workflow: Positive Result (Data, Metadata & Map)
+#### 🧪TC-1 Full Workflow: Positive Result (Data, Metadata & Map)
 
 Positive Result (Meets Criteria):
 
@@ -94,14 +94,13 @@ C. Map Output: The map is successfully generated and only visualizes the filtere
 
 ---
 
-#### 🧪TC-2	Full Workflow: Negative Result (Data Exclusion)
+#### 🧪TC-2 Full Workflow: Negative Result (Data Exclusion)
 
 Negative Result (Does Not Meet):
 
 Description:
 
 Verify that the workflow can correctly isolate and process data that DOES NOT meet the spatial criterion, validating data exclusion and metadata integrity.
-
 
 Steps:
 
@@ -126,7 +125,6 @@ B. Metadata (R2): The Spatial Filter and Create Builder Map nodes must display t
 C. Map Output: The map is successfully generated and visualizes points of sale outside the California area.
 
 ---
-
 
 ### 🎯 Requirement 3:
 

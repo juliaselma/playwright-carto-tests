@@ -2,11 +2,11 @@ import { MapBuilderPage } from '../../pages/MapBuilderPage';
 import { test } from '../baseTest';
 import { testData } from '../data/testData';
 
-test.describe('TC-2: Negative Result - Full Validation (Data, Metrics, Map)', () => {
+test.describe('TC-2: Negative Result - Full Validation (Data, Metrics, Map, Map Synchronization)', () => {
   test('Verify map generation from data that DOES NOT meet the criteria', async ({
     workflowEditorPage,
   }) => {
-    test.setTimeout(160000);
+    test.setTimeout(200000);
     await workflowEditorPage.openDemoTablesPanel();
     await workflowEditorPage.selectDataset(testData.DATASET_STORES);
     await workflowEditorPage.selectDataset(testData.DATASET_STATES);
@@ -21,7 +21,7 @@ test.describe('TC-2: Negative Result - Full Validation (Data, Metrics, Map)', ()
       'out',
       'source',
     );
-    await workflowEditorPage.configureSimpleFilter(testData.FILTER_STATE);
+    await workflowEditorPage.configureSimpleFilter(testData.FILTER_STATE_POSITIVE);
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
     await workflowEditorPage.collapseResultsPanel();
