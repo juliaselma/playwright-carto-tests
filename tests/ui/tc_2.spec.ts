@@ -2,8 +2,8 @@ import { MapBuilderPage } from '../../pages/MapBuilderPage';
 import { test } from '../baseTest';
 import { testData } from '../data/testData';
 
-test.describe('TC-1: Positive Result - Full Validation (Data, Metrics, Map)', () => {
-  test('Verify map generation from filtered data (Positive Result)', async ({
+test.describe('TC-2: Negative Result - Full Validation (Data, Metrics, Map)', () => {
+  test('Verify map generation from data that DOES NOT meet the criteria', async ({
     workflowEditorPage,
   }) => {
     test.setTimeout(160000);
@@ -34,18 +34,12 @@ test.describe('TC-1: Positive Result - Full Validation (Data, Metrics, Map)', ()
       testData.NODE_SPATIAL_FILTER,
       testData.NODE_SIMPLE_FILTER,
       'filter',
-      'match',
-    );
-    await workflowEditorPage.connectNodes(
-      testData.NODE_STORES,
-      testData.NODE_SPATIAL_FILTER,
-      'out',
-      'source',
+      'unmatch',
     );
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
     await workflowEditorPage.selectNode(testData.NODE_SPATIAL_FILTER);
-    await workflowEditorPage.assertStateColumnContent('CA', 'includes');
+    await workflowEditorPage.assertStateColumnContent('CA', 'excludes');
     await workflowEditorPage.collapseResultsPanel();
     await workflowEditorPage.clearComponentSearch();
     await workflowEditorPage.dragComponent(
@@ -59,10 +53,11 @@ test.describe('TC-1: Positive Result - Full Validation (Data, Metrics, Map)', ()
       'sources',
     );
     await workflowEditorPage.openNodeConfiguration(testData.NODE_MAP);
-    await workflowEditorPage.setMapName(testData.MAP_NAME_POSITIVE);
+    await workflowEditorPage.setMapName(testData.MAP_NAME_NEGATIVE);
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
     await workflowEditorPage.selectNode(testData.NODE_MAP);
+    await workflowEditorPage.assertMapOutputSchema();
 
     const newMapPageInstance = await workflowEditorPage.openMapInNewTab();
     const mapPageObject = new MapBuilderPage(newMapPageInstance);

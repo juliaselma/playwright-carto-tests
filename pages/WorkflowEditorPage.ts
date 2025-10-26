@@ -77,6 +77,15 @@ export class WorkflowEditorPage {
   private readonly reactFlowRenderer = this.page.locator(
     '.react-flow__renderer',
   );
+  private readonly mapIdColumnHeader = this.page.locator(
+    'thead th:has-text("map_id")',
+  );
+  private readonly mapUrlColumnHeader = this.page.locator(
+    'thead th:has-text("map_url")',
+  );
+  private readonly updatedAtMapColumnHeader = this.page.locator(
+    'thead th:has-text("updated_at")',
+  );
 
   //Constructor
   constructor(public readonly page: Page) {
@@ -434,9 +443,6 @@ export class WorkflowEditorPage {
   }
 
   async openMapInNewTab(): Promise<Page> {
-    console.log('Navigating to the map from the Data tab...');
-    await this.dataTab.click();
-
     // Locator for the map link
     const mapLinkLocator = this.page.getByRole('link', {
       name: 'https://clausa.app.carto.com/',
@@ -527,5 +533,25 @@ export class WorkflowEditorPage {
 
     console.log(`✅ Validation ${mode}: ${count} files checked.`);
     await this.closeNodeConfigurationPanel();
+  }
+  async assertMapOutputSchema(): Promise<void> {
+    console.log('checking map output schema...');
+
+    await this.dataTab.click();
+
+    // Verify the presence of expected columns in the map output
+    await expect(this.mapIdColumnHeader).toBeVisible({ timeout: 10000 });
+    await expect(this.mapUrlColumnHeader).toBeVisible();
+    await expect(this.updatedAtMapColumnHeader).toBeVisible();
+
+    // Verify there is exactly one row in the results
+    const resultRows = this.page.locator('tbody tr');
+    await expect(resultRows).toHaveCount(1);
+
+    // Verify that the map_url cell is not empty
+    const mapUrlCell = resultRows.locator('td').nth(1);
+    await expect(mapUrlCell).not.toBeEmpty();
+
+    console.log('✅ the methadata schema is correct.');
   }
 }
