@@ -2,7 +2,7 @@ import { MapBuilderPage } from '../../pages/MapBuilderPage';
 import { test } from '../baseTest';
 import { testData } from '../data/testData';
 
-test.describe('TC-2: Negative Result - Full Validation (Data, Metrics, Map, Map Synchronization)', () => {
+test.describe('TC-2: Negative Result - Full Validation (Data, Metrics, Map)', () => {
   test('Verify map generation from data that DOES NOT meet the criteria', async ({
     workflowEditorPage,
   }) => {
@@ -39,7 +39,7 @@ test.describe('TC-2: Negative Result - Full Validation (Data, Metrics, Map, Map 
     await workflowEditorPage.runWorkflow();
     await workflowEditorPage.assertWorkflowSuccess();
     await workflowEditorPage.selectNode(testData.NODE_SPATIAL_FILTER);
-    await workflowEditorPage.assertStateColumnContent('CA', 'excludes');
+    await workflowEditorPage.assertStateColumnContent(testData.STATE_CODE_POSITIVE, 'excludes');
     await workflowEditorPage.collapseResultsPanel();
     await workflowEditorPage.clearComponentSearch();
     await workflowEditorPage.dragComponent(

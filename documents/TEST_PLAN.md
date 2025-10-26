@@ -56,45 +56,55 @@ The user is able to ensure that the map stays up to date with the analytical res
 
 ---
 
-#### 🧪TC-1 Full Workflow: Positive Result (Data, Metadata & Map)
+### 🧪TC-1 Full Workflow: Positive Result (Data, Metadata, Map & Sync)
 
 Positive Result (Meets Criteria):
 
 Description:
 
-Verify that the end-to-end workflow correctly generates a map from data meeting a specific spatial criterion. This includes validating data integrity, key metadata metrics in intermediate and final nodes, and the final map output.
+Verify that the complete end-to-end workflow correctly generates and synchronizes a map based on updated spatial criteria. This test validates initial data integrity (Requirement 1), key metadata metrics (Requirement 2), map output (Requirement 2), and the automatic synchronization of the map when the input filter is changed (Requirement 3).
 
-Steps:
+#### I. Setup and Initial Validation (California - CA)
+1. Create Workflow: Start the workflow using the retail_stores and usa_states_boundaries datasets.
 
-1. Create Workflow with retail_stores and usa_states_boundaries datasets.
+2. Initial Filter: Configure a Simple Filter to select the geometry for the state of California (CA).
 
-2. Configure a Simple Filter to select the geometry for the state of California.
+3. Connect Nodes: Connect the Simple Filter's match output to the Spatial Filter's filter input. Connect the retail_stores output to the Spatial Filter's source input.
 
-3. Connect the match output of the Simple Filter to the filter input of the Spatial Filter.
+4. Execute & Metadata Check (R2): Execute the workflow. Select the Spatial Filter node and review key metadata (Rows, Cols, Updated At).
 
-4. Connect retail_stores to the source input of the Spatial Filter.
+5. Data Validation (R1): The Spatial Filter's result table must only contain data spatially intersecting with California (Validate: the state column must contain 'CA' and tolerate the known bug 'NV').
 
-5. Execute the workflow.
+6. Create Map (R2): Connect the Spatial Filter's match output to the Create Builder Map node.
 
-6. Select the Spatial Filter node and review key metadata (Rows, Cols, Updated At).
+7. Execute & Get URL (R3 Prep): Execute the Create Builder Map node. Review metadata and retrieve/save the persistent map URL for later use.
 
-7. Connect the match output of the Spatial Filter to the Create Builder Map.
+8. Open & Validate Map Content: Open the map in a new tab (using the method that relies on the workflow click).
 
-8. Execute the Create Builder Map node and review key metadata.
+9. Close the map tab.
 
-9. Open the map in a new tab.
+#### II. Synchronization Cycle (Texas - TX)
+10. Update Filter: Modify the configuration of the Simple Filter to select the geometry for the state of Texas (TX).
 
-Expected result:
+11. Re-Execute: Execute the complete workflow.
 
-A. Data Validation: The result table for the Spatial Filter contains rows that spatially intersect with California (Validation: the state column must contain 'CA' and the test is currently set to tolerate the known data bug 'NV').
+12. Intermediate Data Check: Select the Spatial Filter node and validate that the state column in the result table now correctly reflects only data for 'TX'.
 
-B. Metadata (R2): The Spatial Filter and Create Builder Map nodes must display the ROWS, COLS, and updated at metrics as visible and correctly populated.
+13. Reopen Map (R3): Reopen the exact same map URL (the one saved in step 7) only containing data with state code 'TX'.
 
-C. Map Output: The map is successfully generated and only visualizes the filtered points of sale.
+14. Close the map tab.
+
+#### Expected result:
+
+A. Data Validation (R1/R2): The Spatial Filter and Map data tables must accurately reflect the currently applied filter (CA in Cycle I, TX in Cycle II).
+
+B. Metadata (R2): The Spatial Filter and Create Builder Map nodes must consistently display visible and correctly populated ROWS, COLS, and Updated At metrics after both executions.
+
+C. Map Synchronization (R3): The map remains persistent at the original URL, and its content automatically updates to reflect the new workflow results (Texas), demonstrating successful synchronization.
 
 ---
 
-#### 🧪TC-2 Full Workflow: Negative Result (Data Exclusion)
+### 🧪TC-2 Full Workflow: Negative Result (Data Exclusion)
 
 Negative Result (Does Not Meet):
 
@@ -116,7 +126,7 @@ Steps:
 
 6. Execute the Create Builder Map node and review key metadata.
 
-Expected result:
+#### Expected result:
 
 A. Data Validation: The result table for the Spatial Filter contains rows that DO NOT intersect with the geometry of California (Validation: the state column must exclude 'CA').
 
@@ -126,15 +136,6 @@ C. Map Output: The map is successfully generated and visualizes points of sale o
 
 ---
 
-### 🎯 Requirement 3:
-
-Persistence and Analytical Update
-
-Requirement 3:
-
-The user is able to ensure that the map stays up to date with the analytical results.
-
----
 
 #### 🧪TC-R3-001
 
@@ -153,26 +154,3 @@ Expected result:
 The map generated by Create Builder Map must automatically update to reflect the new analytical results (stores in Nevada).
 
 ---
-
-#### 🧪TC-R3-002
-
-Description:
-
-Public URL Persistence.
-
-Steps:
-
-1. Generate the map and obtain the public sharing URL.
-2. Modify the workflow (e.g., add a new filter) and execute again.
-
-Expected result:
-
-The map at the original public URL must show the updated results, verifying that the URL is persistent and reflects the latest analysis.
-
----
-
-## 4. Approval Criteria ✔️
-
-All Test Cases marked as High/Critical Severity must have a Pass status.
-
-The Create Builder Map component must ensure that the integration of map generation into the workflow functions as described, providing full control over how maps are generated and maintained.
