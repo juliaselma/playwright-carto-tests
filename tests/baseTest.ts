@@ -4,9 +4,9 @@ import { LoginPage } from '../pages/LoginPage';
 import { WorkspacePage } from '../pages/WorkspacePage';
 import { WorkflowEditorPage } from '../pages/WorkflowEditorPage';
 
-const USER_EMAIL = 'juliaselma@gmail.com';
+//onst USER_EMAIL = 'juliaselma@gmail.com';
 
-const USER_PASSWORD = 'Dachibb1901$';
+//const USER_PASSWORD = 'Dachibb1901$';
 
 // Custom fixtures
 type MyFixtures = {
@@ -25,7 +25,12 @@ export const test = baseTest.extend<MyFixtures>({
     );
 
     await homePage.navigateToLogin();
-    await loginPage.login(USER_EMAIL, USER_PASSWORD);
+    const email = process.env.USER_EMAIL;
+    const password = process.env.USER_PASSWORD;
+    if (!email || !password) {
+        throw new Error("❌ Congiguration error: USER_EMAIL or USER_PASSWORD is not set in environment variables.");
+    }
+    await loginPage.login(email, password);
     const newWorkflowPage = await workspacePage.navigateAndCreateNewWorkflow();
 
     //Execute use with the new workflow page, so that fixtures depending on it can use it
