@@ -38,6 +38,7 @@ export default defineConfig({
       name: 'api-mode',
       testDir: './tests/api/', // Solo ejecuta tests de API [cite: 86]
       // Desactiva el navegador para las pruebas de API [cite: 88]
+      workers: 1,
       use: {
         baseURL: 'https://demoqa.com', // URL base de la API de Libros [cite: 64]
         headless: true,
