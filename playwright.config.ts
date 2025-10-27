@@ -8,7 +8,6 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   timeout: 240 * 1000,
 
@@ -18,18 +17,18 @@ export default defineConfig({
     actionTimeout: 90 * 1000,
   },
 
-  // === Projects for CI/CD  ===
   projects: [
     // 1. UI Mode
     {
       name: 'ui-chromium',
       testDir: './tests/ui/',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'], headless: false },
     },
     {
       name: 'ui-firefox',
       testDir: './tests/ui/',
-      use: { ...devices['Desktop Firefox'] },
+
+      use: { ...devices['Desktop Firefox'], headless: false },
     },
 
     // 2. API Mode
@@ -39,7 +38,6 @@ export default defineConfig({
       workers: 1,
       use: {
         baseURL: 'https://demoqa.com',
-        headless: true,
       },
     },
   ],
