@@ -13,36 +13,33 @@ export default defineConfig({
   timeout: 240 * 1000,
 
   use: {
-    // URL base de la aplicación CARTO para tests de UI
     baseURL: 'https://carto.com/',
     trace: 'on-first-retry',
     actionTimeout: 90 * 1000,
   },
 
-  // === Proyectos para CI/CD (Parte 4: Bonus) ===
+  // === Projects for CI/CD  ===
   projects: [
-    // 1. UI Mode (Tests de Interfaz de Usuario)
+    // 1. UI Mode
     {
       name: 'ui-chromium',
-      testDir: './tests/ui/', // Solo ejecuta tests de UI [cite: 85]
+      testDir: './tests/ui/',
       use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'ui-firefox',
-      testDir: './tests/ui/', // Solo ejecuta tests de UI [cite: 85]
+      testDir: './tests/ui/',
       use: { ...devices['Desktop Firefox'] },
     },
 
-    // 2. API Mode (Tests de API)
+    // 2. API Mode
     {
       name: 'api-mode',
-      testDir: './tests/api/', // Solo ejecuta tests de API [cite: 86]
-      // Desactiva el navegador para las pruebas de API [cite: 88]
+      testDir: './tests/api/',
       workers: 1,
       use: {
-        baseURL: 'https://demoqa.com', // URL base de la API de Libros [cite: 64]
+        baseURL: 'https://demoqa.com',
         headless: true,
-        // No necesita un dispositivo de escritorio/móvil específico
       },
     },
   ],
