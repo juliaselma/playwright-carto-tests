@@ -1,0 +1,93 @@
+# .github/workflows/main.yml (CORREGIDO)
+
+name: Playwright Tests CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  # ===============================================
+  # 1. JOB DE PRUEBAS DE UI (PARALELO - Genera artefactos por navegador)
+  # ===============================================
+  ui-tests:
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [ui-chromium, ui-firefox] # Ejecutará dos trabajos en paralelo
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🌐 Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: ⚙️ Load Environment Variables (optional)
+        run: echo "${{ secrets.ENV_VARS }}" > .env
+
+      # ✅ CLAVE: Ejecuta el test. Se asume que tu playwright.config.ts genera el reporte
+      # en una carpeta única para cada proyecto (ej. playwright-report/ui-chromium)
+      - name: ▶️ Run UI Tests (${{ matrix.project }})
+        run: npx playwright test --project=${{ matrix.project }}
+
+      # ✅ Subir artefacto: Crea un archivo zip distinto para cada navegador
+      - name: 📊 Upload Report Artifact (${{ matrix.project }})
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report-${{ matrix.project }} # html-report-ui-chromium, html-report-ui-firefox
+          path: playwright-report/ # Sube todo lo generado por este worker
+          retention-days: 30
+
+  # ===============================================
+  # 2. JOB DE PRUEBAS DE API (SECUENCIAL Y ESTABLE)
+  # ===============================================
+  api-tests:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+
+    # Asegura que la CI registra la falla de UI si ocurre.
+    needs: [ui-tests]
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🌐 Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      # ✅ Ejecuta solo el proyecto API, sin matriz.
+      - name: ▶️ Run API Tests (Sequential)
+        run: npx playwright test --project=api-mode
+
+      # 📊 Subir el reporte de API.
+      # Sube la carpeta playwright-report que se generó en este Job.
+      - name: 📊 Upload API Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report-api # Nombre de artefacto único
+          path: playwright-report/
+          retention-days: 30
