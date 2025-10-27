@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 
-const USER_NAME = 'julia.selma';
-const PASSWORD = 'TestPass28$';
-const BASE_URL = 'https://demoqa.com';
+const USER_NAME = process.env.USER_NAME;
+const PASSWORD = process.env.PASSWORD;
+const BASE_URL = process.env.BASE_URL;
 
 test.describe('API Testing: BookStore and Token Generation', () => {
   test('Should retrieve the list of all books and validate its structure', async ({
