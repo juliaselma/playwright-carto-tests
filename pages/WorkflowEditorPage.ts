@@ -1,15 +1,10 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { LAYOUT_CONSTANTS } from './../tests/data/layoutContants';
 
 interface EvaluateArgs {
   name: string;
   selector: string;
 }
-
-//Node dimensions and spacing for layout calculations
-const NODE_HEIGHT = 50;
-const VERTICAL_SPACING = 30;
-const NODE_WIDTH = 180;
-const HORIZONTAL_SPACING = 100;
 
 export class WorkflowEditorPage {
   //Locators
@@ -119,7 +114,10 @@ export class WorkflowEditorPage {
 
           targetX = refPos.x;
           // New Y position below the last node
-          targetY = refPos.y + NODE_HEIGHT + VERTICAL_SPACING;
+          targetY =
+            refPos.y +
+            LAYOUT_CONSTANTS.NODE_HEIGHT +
+            LAYOUT_CONSTANTS.VERTICAL_SPACING;
         }
       } catch (error) {
         console.warn(
@@ -307,7 +305,10 @@ export class WorkflowEditorPage {
         const refPos = await this.getNodePosition(refNodeName);
 
         // new X position to the right of the reference node
-        targetX = refPos.x + NODE_WIDTH + HORIZONTAL_SPACING;
+        targetX =
+          refPos.x +
+          LAYOUT_CONSTANTS.NODE_WIDTH +
+          LAYOUT_CONSTANTS.HORIZONTAL_SPACING;
 
         // Y position aligned with the reference node
         targetY = refPos.y;
