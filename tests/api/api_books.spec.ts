@@ -62,7 +62,7 @@ test.describe('API Testing: BookStore and Token Generation', () => {
     const loginData = await loginResponse.json();
     const userId = loginData.userId;
     expect(userId.length).toBeGreaterThan(0);
-    console.log(`✅ User ID obtenido.`);
+    console.log(`✅ User ID obtained.`);
 
     const getUserResponse = await request.get(`/Account/v1/User/${userId}`, {
       headers: {
@@ -72,7 +72,7 @@ test.describe('API Testing: BookStore and Token Generation', () => {
 
     expect(
       getUserResponse.status(),
-      'El código de estado debe ser 200 para un token válido',
+      'The status code should be 200 for a valid token',
     ).toBe(200);
 
     const userData = await getUserResponse.json();
@@ -80,6 +80,8 @@ test.describe('API Testing: BookStore and Token Generation', () => {
     expect(userData).toHaveProperty('username', USER_NAME);
     expect(Array.isArray(userData.books)).toBe(true);
 
-    console.log(`✅ Consumo autenticado GET /Account/v1/User/{UUID} exitoso.`);
+    console.log(
+      `✅ Correctly authenticated GET /Account/v1/User/{UUID} successful.`,
+    );
   });
 });
