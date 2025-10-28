@@ -8,7 +8,7 @@ The project is structured to be stable, modular, and easy to maintain, clearly s
 
 - UI Tests (tests/ui/): Contains end-to-end (e2e) test cases that simulate user interactions within the browser (e.g., login, navigation). It utilizes a Page Object Model (POM) pattern.
 
-- API Tests (tests/api/): Contains tests that validate API endpoints, including authentication (token retrieval) and data verification (e.g., api_books.spec.ts).
+- API Tests (tests/api/): Contains tests that validate API endpoints. It features a modular structure using Custom Playwright Fixtures for efficient authentication and centralized routes (apiEndpoints.ts) for simplified maintenance.
 
 ## ⚙️ Installation and Local Execution
 
@@ -35,18 +35,17 @@ npx playwright install --with-deps
 
 #### UI Credentials (used by UI tests)
 
-USER_EMAIL="your_test_email@example.com"
-USER_PASSWORD="YourPassword!"
+USER_EMAIL= UI test credentials.
+
+USER_PASSWORD= UI test credentials.
+
 
 #### API Credentials (used by API tests)
 
 USER_NAME="api.username"
+
 PASSWORD="ApiTestPassword$"
 
-Base URLs (Optional, if not configured in playwright.config.ts)
-
-BASE_URL="https://demoqa.com"
-CARTO_APP_BASE_URL="https://clausa.app.carto.com/"
 
 4. Running the Tests
 
@@ -54,29 +53,45 @@ You can execute the entire test suite or specific subsets using Playwright comma
 
 🟢 Run All Tests (UI + API)
 
-npx playwright test
+npm run test
 
 🌐 Run Only UI Tests (Specific Browsers)
 
--Runs the projects defined in your playwright.config.ts
-
-npx playwright test --project=ui-chromium
-npx playwright test --project=ui-firefox
+npm run test:ui:all
 
 🔒 Run Only API Tests
 
-npx playwright test --project=api-mode
+npm run test:api
 
-📊 View Test Report
+5. Code Quality Checks
 
-After execution, open the interactive HTML report in your browser:
+Run the following scripts to check and automatically format the code:
 
-npx playwright show-report
+* Check and Fix Formatting (Prettier):
+
+npm run format
+
+* Check Linting (ESLint):
+
+npm run lint
+
 
 ☁️ Continuous Integration (CI/CD)
 
 The tests are automatically executed via GitHub Actions under the Playwright Tests CI workflow whenever a push is made or a Pull Request is opened against the main or master branches.
 
-Security: Credentials are set up as Repository Secrets in GitHub (UI_USER_EMAIL, API_USERNAME, etc.) and are securely injected into the CI virtual machine.
+* Quality Gate:
 
-Artifacts: The workflow uploads Playwright HTML reports as separate artifacts (e.g., html-report-ui-chromium, html-report-api), which are available for download in the Actions tab for 30 days.
+The workflow first runs lint and format checks. Tests only proceed if the code passes the quality inspection.
+
+* Dependencies:
+
+API tests are configured to run even if UI tests fail to ensure full coverage of the service layer.
+
+* Security: 
+
+Credentials are set up as Repository Secrets in GitHub (UI_USER_EMAIL, API_USERNAME, etc.) and are securely injected into the CI virtual machine.
+
+* Artifacts:
+
+ The workflow uploads Playwright HTML reports as separate artifacts, available for download in the Actions tab.
