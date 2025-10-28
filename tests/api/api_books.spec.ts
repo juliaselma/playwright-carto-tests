@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { testData } from '../data/testData';
 
 const USER_NAME = process.env.USER_NAME;
 const PASSWORD = process.env.PASSWORD;
-const BASE_URL = process.env.BASE_URL;
+const BASE_URL = testData.API_BASE_URL;
 
 test.describe('API Testing: BookStore and Token Generation', () => {
   test('Should retrieve the list of all books and validate its structure', async ({

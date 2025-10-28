@@ -7,8 +7,8 @@ export class LoginPage {
 
   constructor(public readonly page: Page) {}
 
-  async login(email: string, password: string) {
-    const workflows_URL = process.env.CARTO_APP_BASE_URL;
+  async login(email: string, password: string, carto_app_base_url: string) {
+    const workflows_URL = carto_app_base_url;
 
     if (!workflows_URL) {
       throw new Error(

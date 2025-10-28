@@ -4,14 +4,10 @@ export class HomePage {
   private readonly loginButton = 'a:has-text("Log in")';
   constructor(public readonly page: Page) {}
 
-  async navigateToLogin() {
+  async navigateToLogin(base_URL: string) {
     console.log('Navigating to log in page');
-    const baseURL = process.env.BASE_URL;
-    if (!baseURL) {
-      throw new Error(
-        '❌ Congiguration error: BASE_URL is not set in environment variables.',
-      );
-    }
+    const baseURL = base_URL;
+
     await this.page.goto(baseURL);
     await this.page.click(this.loginButton);
     await this.page.waitForURL('**/u/login*');
