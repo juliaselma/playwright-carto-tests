@@ -76,7 +76,6 @@ test.describe('TC-1: Positive Result - Full Validation (Data, Metrics, Map, Map 
       await workflowEditorPage.openMapInNewTab(mapUrl);
     const mapPageObjectCA = new MapBuilderPage(newMapPageInstanceCA);
     await mapPageObjectCA.validateMapLoaded();
-    // crear metodo de validacion en el mapa
     await newMapPageInstanceCA.close();
 
     console.log('---Validating Texas State Update---');
@@ -94,7 +93,6 @@ test.describe('TC-1: Positive Result - Full Validation (Data, Metrics, Map, Map 
     const mapPageTX = await workflowEditorPage.openMapInNewTab(mapUrl);
     const mapPageObjectTX = new MapBuilderPage(mapPageTX);
     await mapPageObjectTX.validateMapLoaded();
-    // reutilizar metodo de validacion en el mapa
     await mapPageTX.close();
   });
 });

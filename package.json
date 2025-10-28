@@ -7,7 +7,10 @@
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "lint": "npx eslint --ext .ts,.js .",
-    "format": "prettier --write \"**/*.{ts,js,json,css,html,md}\""
+    "format": "prettier --write \"**/*.{ts,js,json,css,html,md}\"",
+    "test:ui:all": "playwright test --grep @ui",
+    "test:ui:chrome": "playwright test --project=ui-chromium",
+    "test:api": "playwright test --project=api-mode"
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
