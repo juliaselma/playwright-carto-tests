@@ -1,10 +1,11 @@
 import { expect } from '@playwright/test';
 import { test } from './auth.fixture';
+import { API_ROUTES } from './config/apiEndpoints';
 
 test('Should retrieve the list of all books and validate its structure', async ({
   request,
 }) => {
-  const booksResponse = await request.get('/BookStore/v1/Books');
+  const booksResponse = await request.get(API_ROUTES.GET_ALL_BOOKS);
   expect(booksResponse.status(), 'Status code should be 200').toBe(200);
 
   const booksData = await booksResponse.json();
@@ -23,7 +24,7 @@ test('Should retrieve the list of all books and validate its structure', async (
     expect(typeof firstBook.pages).toBe('number');
   }
   console.log(
-    `✅ Endpoint /BookStore/v1/Books validated. Total books: ${booksData.books.length}`,
+    `✅ Endpoint ${API_ROUTES.GET_ALL_BOOKS} validated. Total books: ${booksData.books.length}`,
   );
 });
 
@@ -34,7 +35,7 @@ test('Should successfully consume an authenticated method (Get User) using the g
 }) => {
   const USER_NAME = process.env.USER_NAME;
 
-  const getUserResponse = await request.get(`/Account/v1/User/${userId}`, {
+  const getUserResponse = await request.get(`${API_ROUTES.GET_USER}${userId}`, {
     headers: {
       Authorization: `Bearer ${authToken}`,
     },
@@ -52,6 +53,6 @@ test('Should successfully consume an authenticated method (Get User) using the g
   expect(Array.isArray(userData.books)).toBe(true);
 
   console.log(
-    `✅ Correctly authenticated GET /Account/v1/User/{UUID} successful.`,
+    `✅ Correctly authenticated GET ${API_ROUTES.GET_USER}{UUID} successful.`,
   );
 });

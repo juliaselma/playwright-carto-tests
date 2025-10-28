@@ -1,5 +1,6 @@
 import { test as base, expect } from '@playwright/test';
 import { getAuthBody } from './payloads/authPayloads';
+import { API_ROUTES } from './config/apiEndpoints';
 
 type AuthFixtures = {
   authToken: string;
@@ -12,7 +13,7 @@ export const test = base.extend<AuthFixtures>({
     const PASSWORD = process.env.PASSWORD;
 
     const generateTokenResponse = await request.post(
-      '/Account/v1/GenerateToken',
+      API_ROUTES.GENERATE_TOKEN,
       { data: getAuthBody(USER_NAME!, PASSWORD!) },
     );
     expect(generateTokenResponse.status()).toBe(200);
@@ -26,7 +27,7 @@ export const test = base.extend<AuthFixtures>({
     const USER_NAME = process.env.USER_NAME;
     const PASSWORD = process.env.PASSWORD;
 
-    const loginResponse = await request.post('/Account/v1/Login', {
+    const loginResponse = await request.post(API_ROUTES.LOGIN, {
       data: getAuthBody(USER_NAME!, PASSWORD!),
     });
     expect(loginResponse.status()).toBe(200);
