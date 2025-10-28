@@ -15,13 +15,12 @@ export const test = baseTest.extend<MyFixtures>({
     const homePage = new HomePage(page);
     const loginPage = new LoginPage(page);
     const workspacePage = new WorkspacePage(page);
-    const base_URL = testData.BASE_URL;
 
     console.log(
       '-> Running setupLogin: Performing login and creating new workflow.',
     );
 
-    await homePage.navigateToLogin(base_URL);
+    await homePage.navigateToLogin('/');
     const email = process.env.USER_EMAIL;
     const password = process.env.USER_PASSWORD;
     const carto_app_base_url = testData.CARTO_APP_BASE_URL;

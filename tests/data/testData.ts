@@ -15,7 +15,6 @@ interface WorkflowData {
   NODE_SIMPLE_FILTER: string;
   NODE_SPATIAL_FILTER: string;
   NODE_MAP: string;
-  BASE_URL: string;
   CARTO_APP_BASE_URL: string;
 }
 
@@ -36,6 +35,5 @@ export const testData: WorkflowData = {
   NODE_SIMPLE_FILTER: 'Simple Filter',
   NODE_SPATIAL_FILTER: 'Spatial Filter',
   NODE_MAP: 'Create Builder Map',
-  BASE_URL: 'https://carto.com/',
   CARTO_APP_BASE_URL: 'https://clausa.app.carto.com/',
 };
