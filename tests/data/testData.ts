@@ -17,7 +17,6 @@ interface WorkflowData {
   NODE_MAP: string;
   BASE_URL: string;
   CARTO_APP_BASE_URL: string;
-  API_BASE_URL: string;
 }
 
 export const testData: WorkflowData = {
@@ -39,5 +38,4 @@ export const testData: WorkflowData = {
   NODE_MAP: 'Create Builder Map',
   BASE_URL: 'https://carto.com/',
   CARTO_APP_BASE_URL: 'https://clausa.app.carto.com/',
-  API_BASE_URL: 'https://demoqa.com',
 };

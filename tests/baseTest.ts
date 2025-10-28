@@ -14,7 +14,7 @@ export const test = baseTest.extend<MyFixtures>({
   setupLogin: async ({ page }, use) => {
     const homePage = new HomePage(page);
     const loginPage = new LoginPage(page);
-    const workspacePage = new WorkspacePage(page); // Ahora workspacePage está definido y se puede usar
+    const workspacePage = new WorkspacePage(page);
     const base_URL = testData.BASE_URL;
 
     console.log(

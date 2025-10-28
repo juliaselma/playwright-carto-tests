@@ -1,16 +1,14 @@
 import { test, expect } from '@playwright/test';
-import { testData } from '../data/testData';
 
 const USER_NAME = process.env.USER_NAME;
 const PASSWORD = process.env.PASSWORD;
-const BASE_URL = testData.API_BASE_URL;
 
 test.describe('API Testing: BookStore and Token Generation', () => {
   test('Should retrieve the list of all books and validate its structure', async ({
     request,
   }) => {
     console.log('--- OBTAINING ALL THE BOOKS ---');
-    const booksResponse = await request.get(`${BASE_URL}/BookStore/v1/Books`);
+    const booksResponse = await request.get('/BookStore/v1/Books');
 
     expect(booksResponse.status(), 'Status code should be 200').toBe(200);
 
@@ -40,7 +38,7 @@ test.describe('API Testing: BookStore and Token Generation', () => {
     console.log('\n--- GENERATE TOKEN AND CONSUME AUTHENTICATED METHOD ---');
 
     const generateTokenResponse = await request.post(
-      `${BASE_URL}/Account/v1/GenerateToken`,
+      '/Account/v1/GenerateToken',
       {
         data: {
           userName: USER_NAME,
@@ -54,7 +52,7 @@ test.describe('API Testing: BookStore and Token Generation', () => {
     expect(authToken.length).toBeGreaterThan(0);
     console.log(`✅ Token successfully generated`);
 
-    const loginResponse = await request.post(`${BASE_URL}/Account/v1/Login`, {
+    const loginResponse = await request.post('/Account/v1/Login', {
       data: {
         userName: USER_NAME,
         password: PASSWORD,
@@ -66,14 +64,11 @@ test.describe('API Testing: BookStore and Token Generation', () => {
     expect(userId.length).toBeGreaterThan(0);
     console.log(`✅ User ID obtenido.`);
 
-    const getUserResponse = await request.get(
-      `${BASE_URL}/Account/v1/User/${userId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
+    const getUserResponse = await request.get(`/Account/v1/User/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${authToken}`,
       },
-    );
+    });
 
     expect(
       getUserResponse.status(),
