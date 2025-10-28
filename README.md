@@ -39,13 +39,11 @@ USER_EMAIL= UI test credentials.
 
 USER_PASSWORD= UI test credentials.
 
-
 #### API Credentials (used by API tests)
 
 USER_NAME="api.username"
 
 PASSWORD="ApiTestPassword$"
-
 
 4. Running the Tests
 
@@ -67,31 +65,30 @@ npm run test:api
 
 Run the following scripts to check and automatically format the code:
 
-* Check and Fix Formatting (Prettier):
+- Check and Fix Formatting (Prettier):
 
 npm run format
 
-* Check Linting (ESLint):
+- Check Linting (ESLint):
 
 npm run lint
-
 
 ☁️ Continuous Integration (CI/CD)
 
 The tests are automatically executed via GitHub Actions under the Playwright Tests CI workflow whenever a push is made or a Pull Request is opened against the main or master branches.
 
-* Quality Gate:
+- Quality Gate:
 
 The workflow first runs lint and format checks. Tests only proceed if the code passes the quality inspection.
 
-* Dependencies:
+- Dependencies:
 
 API tests are configured to run even if UI tests fail to ensure full coverage of the service layer.
 
-* Security: 
+- Security:
 
 Credentials are set up as Repository Secrets in GitHub (UI_USER_EMAIL, API_USERNAME, etc.) and are securely injected into the CI virtual machine.
 
-* Artifacts:
+- Artifacts:
 
- The workflow uploads Playwright HTML reports as separate artifacts, available for download in the Actions tab.
+The workflow uploads Playwright HTML reports as separate artifacts, available for download in the Actions tab.
