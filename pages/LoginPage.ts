@@ -10,11 +10,6 @@ export class LoginPage {
   async login(email: string, password: string, carto_app_base_url: string) {
     const workflows_URL = carto_app_base_url;
 
-    if (!workflows_URL) {
-      throw new Error(
-        '❌CARTO_APP_BASE_URL is not set in environment variables.',
-      );
-    }
     console.log(`Starting ${email} session login...`);
     await this.page
       .locator(this.emailInput)
