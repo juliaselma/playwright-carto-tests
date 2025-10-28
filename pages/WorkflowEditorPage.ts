@@ -1,10 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { LAYOUT_CONSTANTS } from './../tests/data/layoutContants';
-
-interface EvaluateArgs {
-  name: string;
-  selector: string;
-}
+import { EvaluateArgs } from '../tests/types/workflowTypes';
 
 export class WorkflowEditorPage {
   //Locators
