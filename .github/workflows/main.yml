@@ -1,4 +1,4 @@
-# .github/workflows/main.yml (Inyección a nivel de Paso - Versión Final)
+# .github/workflows/main.yml
 
 name: Playwright Tests CI
 
@@ -10,18 +10,46 @@ on:
 
 jobs:
   # ===============================================
+  # 0. JOB DE VERIFICACIÓN DE CALIDAD (LINT & FORMAT)
+  # ===============================================
+  quality-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🧹 Run Linting (ESLint)
+        # Ejecuta el script 'lint' que definiste: npx eslint --ext .ts,.js .
+        run: npm run lint
+
+      - name: ✍️ Run Formatting Check (Prettier)
+        # Usaremos 'prettier --check' para que falle si hay archivos mal formateados
+        run: npx prettier --check "**/*.{ts,js,json,css,html,md}"
+
+
+  # ===============================================
   # 1. JOB DE PRUEBAS DE UI (PARALELO)
   # ===============================================
   ui-tests:
     timeout-minutes: 15
+    # 🚨 DEPENDENCIA: Espera a que la calidad de código sea exitosa
+    needs: quality-checks 
     strategy:
       fail-fast: false
       matrix:
-        project: [ui-chromium, ui-firefox]
+        project: [ui-chromium, ui-firefox] 
 
     runs-on: ubuntu-latest
-
-    # Lógica de Seguridad para evitar fallos en PRs de forks.
+    
+    # Lógica de Seguridad: Solo ejecuta si no es un PR de un fork.
     if: github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name
 
     steps:
@@ -39,7 +67,6 @@ jobs:
       - name: 🌐 Install Playwright browsers
         run: npx playwright install --with-deps
 
-      # ✅ INYECCIÓN DE SECRETOS A NIVEL DE PASO
       - name: ▶️ Run UI Tests (${{ matrix.project }})
         run: npx playwright test --project=${{ matrix.project }}
         env:
@@ -50,8 +77,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: html-report-${{ matrix.project }}
-          path: playwright-report/
+          name: html-report-${{ matrix.project }} 
+          path: playwright-report/ 
           retention-days: 30
 
   # ===============================================
@@ -60,10 +87,13 @@ jobs:
   api-tests:
     timeout-minutes: 5
     runs-on: ubuntu-latest
+    
+    # 🚨 DEPENDENCIA: Depende de 'quality-checks' y 'ui-tests'
+    needs: [quality-checks, ui-tests]
 
-    needs: ui-tests
-
-    # Lógica de Seguridad
+    # Lógica de Ejecución Forzada Y Seguridad:
+    # 1. 'always()' para que se ejecute incluso si ui-tests falla.
+    # 2. La condición de seguridad previene la exposición de secretos en forks.
     if: always() && (github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name)
 
     steps:
@@ -81,7 +111,6 @@ jobs:
       - name: 🌐 Install Playwright browsers
         run: npx playwright install --with-deps
 
-      # ✅ INYECCIÓN DE SECRETOS A NIVEL DE PASO
       - name: ▶️ Run API Tests (Sequential)
         run: npx playwright test --project=api-mode
         env:
