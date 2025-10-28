@@ -73,14 +73,14 @@ export default defineConfig({
     {
       name: 'ui-chromium',
       testDir: './tests/ui/',
-      use: { ...devices['Desktop Chrome'], headless: false },
+      use: { ...devices['Desktop Chrome'], headless: true },
     },
 
     // 1. UI Mode (Firefox)
     {
       name: 'ui-firefox',
       testDir: './tests/ui/',
-      use: { ...devices['Desktop Firefox'], headless: false },
+      use: { ...devices['Desktop Firefox'], headless: true },
     },
 
     // 2. API Mode
