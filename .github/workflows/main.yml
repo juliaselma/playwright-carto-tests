@@ -1,5 +1,3 @@
-# .github/workflows/main.yml
-
 name: Playwright Tests CI
 
 on:
@@ -10,7 +8,7 @@ on:
 
 jobs:
   # ===============================================
-  # 0. JOB DE VERIFICACIÓN DE CALIDAD (LINT & FORMAT)
+  # 0. JOB SECURITY CHECK (LINT & FORMAT)
   # ===============================================
   quality-checks:
     runs-on: ubuntu-latest
@@ -27,29 +25,28 @@ jobs:
         run: npm ci
 
       - name: 🧹 Run Linting (ESLint)
-        # Ejecuta el script 'lint' que definiste: npx eslint --ext .ts,.js .
+
         run: npm run lint
 
       - name: ✍️ Run Formatting Check (Prettier)
-        # Usaremos 'prettier --check' para que falle si hay archivos mal formateados
+
         run: npx prettier --check "**/*.{ts,js,json,css,html,md}"
 
-
   # ===============================================
-  # 1. JOB DE PRUEBAS DE UI (PARALELO)
+  # 1. JOB UI TESTS (PARALLEL)
   # ===============================================
   ui-tests:
     timeout-minutes: 15
-    # 🚨 DEPENDENCIA: Espera a que la calidad de código sea exitosa
-    needs: quality-checks 
+    # 🚨 DEPENDENCY: Waits for successful quality check
+    needs: quality-checks
     strategy:
       fail-fast: false
       matrix:
-        project: [ui-chromium, ui-firefox] 
+        project: [ui-chromium, ui-firefox]
 
     runs-on: ubuntu-latest
-    
-    # Lógica de Seguridad: Solo ejecuta si no es un PR de un fork.
+
+    # Security logic: Only executes if it's not a fork PR
     if: github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name
 
     steps:
@@ -77,23 +74,23 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: html-report-${{ matrix.project }} 
-          path: playwright-report/ 
+          name: html-report-${{ matrix.project }}
+          path: playwright-report/
           retention-days: 30
 
   # ===============================================
-  # 2. JOB DE PRUEBAS DE API (SECUENCIAL)
+  # 2. JOB API TESTS (SECUENTIAL)
   # ===============================================
   api-tests:
     timeout-minutes: 5
     runs-on: ubuntu-latest
-    
-    # 🚨 DEPENDENCIA: Depende de 'quality-checks' y 'ui-tests'
+
+    # 🚨 DEPENDENCY: Depends on 'quality-checks' and 'ui-tests'
     needs: [quality-checks, ui-tests]
 
-    # Lógica de Ejecución Forzada Y Seguridad:
-    # 1. 'always()' para que se ejecute incluso si ui-tests falla.
-    # 2. La condición de seguridad previene la exposición de secretos en forks.
+    # Forced execution and security:
+    # 1. 'always()' is executed if UI test fail.
+    # 2. Prevents secret exposure in forks
     if: always() && (github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name)
 
     steps:
